@@ -15,4 +15,10 @@ namespace Math
 		XZ,
 		YZ
 	};
+
+	enum class API3D
+	{
+		OpenGL,
+		Vulkan
+	};
 }

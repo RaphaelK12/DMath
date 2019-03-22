@@ -52,9 +52,14 @@ namespace Math
 		[[nodiscard]] Matrix4x4 LookAtLH(const Vector3D& position, const Vector3D& forward, const Vector3D& upVector);
 		[[nodiscard]] Matrix4x4 LookAtRH(const Vector3D& position, const Vector3D& forward, const Vector3D& upVector);
 
-		[[nodiscard]] Matrix4x4 PerspectiveRH_ZO(float fovY, float aspectRatio, float zNear, float zFar);
-		[[nodiscard]] Matrix4x4 PerspectiveRH_NO(float fovY, float aspectRatio, float zNear, float zFar);
-		[[nodiscard]] Matrix4x4 PerspectiveLH_ZO(float fovY, float aspectRatio, float zNear, float zFar);
+		template<typename T = float>
+		[[nodiscard]] Matrix<4, 4, T> PerspectiveRH_ZO(T fovY, T aspectRatio, T zNear, T zFar);
+		template<typename T = float>
+		[[nodiscard]] Matrix<4, 4, T> PerspectiveRH_NO(T fovY, T aspectRatio, T zNear, T zFar);
+		template<typename T = float>
+		[[nodiscard]] Matrix<4, 4, T> PerspectiveLH_ZO(T fovY, T aspectRatio, T zNear, T zFar);
+		template<typename T = float>
+		[[nodiscard]] Matrix<4, 4, T> Perspective(API3D api, T fovY, T aspectRatio, T zNear, T zFar);
 	}
 
 	namespace LinTran3D = LinearTransform3D;
@@ -294,10 +299,17 @@ inline Math::Matrix4x4 Math::LinearTransform3D::LookAtRH(const Vector3D& positio
 	});
 }
 
-inline Math::Matrix4x4 Math::LinearTransform3D::PerspectiveLH_ZO(float fovY, float aspectRatio, float zNear, float zFar)
+template<typename T>
+inline Math::Matrix<4, 4, T> Math::LinearTransform3D::PerspectiveLH_ZO(T fovY, T aspectRatio, T zNear, T zFar)
 {
-	const float tanHalfFovy = Tan<AngleUnit::Degrees>(fovY / 2);
-	return Matrix4x4
+	static_assert
+	(
+		std::is_floating_point<T>(), 
+		"DMath error. Template argument T in Math::LinearTransform3D::PerspectiveLH_ZO must be floating point type."
+	);
+
+	const T tanHalfFovy = Tan<AngleUnit::Degrees>(fovY / 2);
+	return Matrix<4, 4, T>
 	({
 		1 / (aspectRatio * tanHalfFovy), 0, 0, 0,
 		0, 1 / tanHalfFovy, 0, 0,
@@ -306,10 +318,17 @@ inline Math::Matrix4x4 Math::LinearTransform3D::PerspectiveLH_ZO(float fovY, flo
 	});
 }
 
-inline Math::Matrix4x4 Math::LinearTransform3D::PerspectiveRH_ZO(float fovY, float aspectRatio, float zNear, float zFar)
+template<typename T>
+inline Math::Matrix<4, 4, T> Math::LinearTransform3D::PerspectiveRH_ZO(T fovY, T aspectRatio, T zNear, T zFar)
 {
-	const float tanHalfFovy = Tan<AngleUnit::Degrees>(fovY / 2);
-	return Matrix4x4
+	static_assert
+	(
+		std::is_floating_point<T>(),
+		"DMath error. Template argument T in Math::LinearTransform3D::PerspectiveRH_ZO must be floating point type."
+	);
+
+	const T tanHalfFovy = Tan<AngleUnit::Degrees>(fovY / 2);
+	return Matrix<4, 4, T>
 	({
 		1 / (aspectRatio * tanHalfFovy), 0, 0, 0,
 		0, 1 / tanHalfFovy, 0, 0,
@@ -318,15 +337,42 @@ inline Math::Matrix4x4 Math::LinearTransform3D::PerspectiveRH_ZO(float fovY, flo
 	});
 }
 
-inline Math::Matrix4x4 Math::LinearTransform3D::PerspectiveRH_NO(float fovY, float aspectRatio, float zNear, float zFar)
+template<typename T>
+inline Math::Matrix<4, 4, T> Math::LinearTransform3D::PerspectiveRH_NO(T fovY, T aspectRatio, T zNear, T zFar)
 {
-	const float tanHalfFovy = Tan<AngleUnit::Degrees>(fovY / 2);
+	static_assert
+	(
+		std::is_floating_point<T>(),
+		"DMath error. Template argument T in Math::LinearTransform3D::PerspectiveRH_NO must be floating point type."
+	);
 
-	return Matrix4x4
+	const T tanHalfFovy = Tan<AngleUnit::Degrees>(fovY / 2);
+	return Matrix<4, 4, T>
 	({
 		1 / (aspectRatio * tanHalfFovy), 0, 0, 0,
 		0, 1 / tanHalfFovy, 0, 0,
 		0, 0, -(zFar + zNear) / (zFar - zNear), -1,
 		0, 0, -(2 * zFar * zNear) / (zFar - zNear), 0
 	});
+}
+
+template<typename T>
+inline Math::Matrix<4, 4, T> Math::LinearTransform3D::Perspective(API3D api, T fovY, T aspectRatio, T zNear, T zFar)
+{
+	static_assert
+	(
+		std::is_floating_point<T>(),
+		"DMath error. Template argument T in Math::LinearTransform3D::Perspective must be floating point type."
+	);
+
+	switch (api)
+	{
+	case API3D::OpenGL:
+		return PerspectiveRH_NO<T>(fovY, aspectRatio, zNear, zFar);
+	case API3D::Vulkan:
+		return PerspectiveRH_ZO<T>(fovY, aspectRatio, zNear, zFar);
+	default:
+		assert(false);
+		return {};
+	}
 }
