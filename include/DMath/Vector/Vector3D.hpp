@@ -37,6 +37,7 @@ namespace Math
 		[[nodiscard]] Vector<3, T> GetRotated(ElementaryAxis axis, float degrees) const;
 
 		[[nodiscard]] constexpr Vector<2, T> AsVec2() const;
+		[[nodiscard]] constexpr Vector<4, T> AsVec4(const T& wValue = T{}) const;
 
 		[[nodiscard]] static constexpr Vector<3, T> Cross(const Vector<3, T>& left, const Vector<3, T>& right);
 	};
@@ -102,6 +103,12 @@ namespace Math
 
 	template<typename T>
 	constexpr Vector<2, T> Vector<3, T>::AsVec2() const { return Math::Vector<2, T>{this->x, this->y }; }
+
+	template<typename T>
+	constexpr Vector<4, T> Vector<3, T>::AsVec4(const T& wValue) const 
+	{ 
+		return Vector<4, T>{this->x, this->y, this->z, wValue }; 
+	}
 
 	template<typename T>
 	constexpr Vector<3, T> Vector<3, T>::Cross(const Vector<3, T>& left, const Vector<3, T>& right) 

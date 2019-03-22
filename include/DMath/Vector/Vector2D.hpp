@@ -31,9 +31,9 @@ namespace Math
 
 		template<AngleUnit angleUnit = Setup::defaultAngleUnit>
 		[[nodiscard]] Math::Vector<2, T> GetRotated(float degrees) const;
-		[[nodiscard]] constexpr Math::Vector<2, T> GetRotated(bool counterClockwise) const;
+		[[nodiscard]] constexpr Vector<2, T> GetRotated(bool counterClockwise) const;
 
-		constexpr Math::Vector<3, T> AsVec3(const T& zValue = T{}) const;
+		[[nodiscard]] constexpr Vector<3, T> AsVec3(const T& zValue = T{}) const;
 
 		[[nodiscard]] static constexpr Vector<2, T> Up();
 		[[nodiscard]] static constexpr Vector<2, T> Down();

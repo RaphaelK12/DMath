@@ -58,6 +58,16 @@ namespace Math
 			return static_cast<std::make_signed_t<ReturnType>>((input2 - input1) * delta + input1);
 	}
 
+	[[nodiscard]] constexpr float Min(float a, float b)
+	{
+		return std::min(a, b);
+	}
+
+	[[nodiscard]] constexpr float Max(float a, float b)
+	{
+		return std::max(a, b);
+	}
+
 	template<typename T1, typename T2>
 	[[nodiscard]] auto Pow(const T1& coefficient, const T2& exponent)
 	{
