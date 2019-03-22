@@ -12,6 +12,8 @@ namespace Math
 	namespace LinearTransform2D
 	{
 		[[nodiscard]] constexpr Matrix<3, 2> Multiply(const Matrix<3, 2>& left, const Matrix<3, 2>& right);
+		template<typename T = float>
+		[[nodiscard]] constexpr Matrix<4, 4, T> AsMat4(const Matrix<3, 2, T>& input);
 
 		[[nodiscard]] constexpr Matrix3x3 Translate(float x, float y);
 		[[nodiscard]] constexpr Matrix3x3 Translate(const Vector2D& input);
@@ -68,6 +70,22 @@ constexpr Math::Matrix<3, 2> Math::LinearTransform2D::Multiply(const Matrix<3, 2
 			dot += left[i][y] * right[2][i];
 		dot += left[2][y];
 		newMatrix[2][y] = dot;
+	}
+
+	return newMatrix;
+}
+
+template<typename T>
+constexpr Math::Matrix<4, 4, T> Math::LinearTransform2D::AsMat4(const Matrix<3, 2, T>& input)
+{
+	Matrix<4, 4, T> newMatrix{};
+	newMatrix.At(2, 2) = 1;
+	newMatrix.At(3, 3) = 1;
+
+	for (size_t x = 0; x < input.GetWidth(); x++)
+	{
+		for (size_t y = 0; y < input.GetHeight(); y++)
+			newMatrix.At(x, y) = input.At(x, y);
 	}
 
 	return newMatrix;

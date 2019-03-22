@@ -28,6 +28,10 @@ namespace Math
 		constexpr void AddTranslation(Matrix4x4& matrix, const Vector3D& input);
 		constexpr void AddTranslation(Matrix<4, 3>& matrix, float x, float y, float z);
 		constexpr void AddTranslation(Matrix<4, 3>& matrix, const Vector3D& input);
+		template<typename T = float>
+		constexpr Vector<3, T> GetTranslation(const Matrix<4, 4, T>& input);
+		template<typename T = float>
+		constexpr Vector<3, T> GetTranslation(const Matrix<4,3, T>& input);
 
 		template<AngleUnit angleUnit = Setup::defaultAngleUnit>
 		[[nodiscard]] Matrix3x3 Rotate(ElementaryAxis axis, float amount);
@@ -138,7 +142,10 @@ constexpr Math::Matrix<4, 3> Math::LinearTransform3D::Translate_Reduced(float x,
 	};
 }
 
-constexpr Math::Matrix<4, 3> Math::LinearTransform3D::Translate_Reduced(const Vector3D & input) { return Translate_Reduced(input.x, input.y, input.z); }
+constexpr Math::Matrix<4, 3> Math::LinearTransform3D::Translate_Reduced(const Vector3D & input) 
+{ 
+	return Translate_Reduced(input.x, input.y, input.z); 
+}
 
 constexpr void Math::LinearTransform3D::AddTranslation(Matrix4x4& matrix, float x, float y, float z)
 {
@@ -159,7 +166,22 @@ constexpr void Math::LinearTransform3D::AddTranslation(Matrix<4, 3>& matrix, flo
 	matrix[3][2] = z;
 }
 
-constexpr void Math::LinearTransform3D::AddTranslation(Matrix<4, 3>& matrix, const Vector3D& input) { AddTranslation(matrix, input.x, input.y, input.z); }
+constexpr void Math::LinearTransform3D::AddTranslation(Matrix<4, 3>& matrix, const Vector3D& input) 
+{ 
+	AddTranslation(matrix, input.x, input.y, input.z);
+}
+
+template<typename T>
+constexpr Math::Vector<3, T> Math::LinearTransform3D::GetTranslation(const Matrix<4, 4, T>& input)
+{
+	return Vector<3, T>{ input.At(3, 0), input.At(3, 1), input.At(3, 2) };
+}
+
+template<typename T>
+constexpr Math::Vector<3, T> Math::LinearTransform3D::GetTranslation(const Matrix<4, 3, T>& input)
+{
+	return Vector<3, T>{ input.At(3, 0), input.At(3, 1), input.At(3, 2) };
+}
 
 template<Math::AngleUnit angleUnit>
 Math::Matrix4x4 Math::LinearTransform3D::Rotate_Homo(ElementaryAxis axis, float amount)
