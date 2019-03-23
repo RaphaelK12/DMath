@@ -56,6 +56,8 @@ namespace Math
 		constexpr const T& Front() const;
 		constexpr T& Back();
 		constexpr const T& Back() const;
+		constexpr T* Data();
+		constexpr const T* Data() const;
 
 		template<typename T2>
 		[[nodiscard]] constexpr auto operator+(const Matrix<width, height, T2>& right) const;
@@ -173,7 +175,12 @@ namespace Math
 	constexpr T& Matrix<width, height, T>::Back() { return this->data.back(); }
 
 	template<size_t width, size_t height, typename T>
-	constexpr const T & Matrix<width, height, T>::Back() const { return this->data.back(); }
+	constexpr const T& Matrix<width, height, T>::Back() const { return this->data.back(); }
+
+	template<size_t width, size_t height, typename T>
+	constexpr T* Matrix<width, height, T>::Data() { return this->data.data(); }
+	template<size_t width, size_t height, typename T>
+	constexpr const T* Matrix<width, height, T>::Data() const { return this->data.data(); }
 
 	template<size_t width, size_t height, typename T>
 	template<typename T2>

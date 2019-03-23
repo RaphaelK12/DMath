@@ -67,6 +67,8 @@ namespace Math
 		public:
 			[[nodiscard]] constexpr T& operator[](size_t index) { return const_cast<T&>(std::as_const(*this)[index]); }
 			[[nodiscard]] constexpr const T& operator[](size_t index) const { return data[index]; }
+			[[nodiscard]] constexpr T* Data() { return data.data(); }
+			[[nodiscard]] constexpr const T* Data() const { return data.data(); }
 		};
 
 		template<typename T>
@@ -88,6 +90,8 @@ namespace Math
 					return x;
 				}
 			}
+			[[nodiscard]] constexpr T* Data() { return &x; }
+			[[nodiscard]] constexpr const T* Data() const { return &x; }
 		};
 
 		template<typename T>
@@ -112,6 +116,8 @@ namespace Math
 					return x;
 				}
 			}
+			[[nodiscard]] constexpr T* Data() { return &x; }
+			[[nodiscard]] constexpr const T* Data() const { return &x; }
 		};
 
 		template<typename T>
@@ -139,6 +145,8 @@ namespace Math
 					return x;
 				}
 			}
+			[[nodiscard]] constexpr T* Data() { return &x; }
+			[[nodiscard]] constexpr const T* Data() const { return &x; }
 		};
 
 		template<size_t length, typename T>
