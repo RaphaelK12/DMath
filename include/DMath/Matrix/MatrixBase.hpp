@@ -49,7 +49,6 @@ namespace Math
 		template<size_t width, size_t height, typename T>
 		constexpr const T& MatrixBase<width, height, T>::At(size_t x, size_t y) const 
 		{ 
-			assert(x < width && y < height);
 			if constexpr (IsColumnMajor())
 				return data.at(x * height + y);
 			else
@@ -62,7 +61,6 @@ namespace Math
 		template<size_t width, size_t height, typename T>
 		constexpr const T& MatrixBase<width, height, T>::At(size_t i) const
 		{
-			assert(i < width * height);
 			return data.at(i);
 		}
 
@@ -82,7 +80,7 @@ namespace Math
 					if (y == rowIndexToSlice)
 						continue;
 
-					newMatrix.At(x < columnIndexToSlice ? x : x - 1, y < rowIndexToSlice ? y : y - 1) = this->At(x, y);
+					newMatrix[x < columnIndexToSlice ? x : x - 1][y < rowIndexToSlice ? y : y - 1] = (*this)[x][y];
 				}
 			}
 			return newMatrix;

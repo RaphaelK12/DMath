@@ -40,7 +40,7 @@ namespace Math
 			for (size_t x = 1; x < width; x++)
 			{
 				for (size_t y = 0; y < x; y++)
-					std::swap(this->At(x, y), this->(y, x));
+					std::swap((*this)[x][y], (*this)[y][x]);
 			}
 		}
 
@@ -53,7 +53,7 @@ namespace Math
 				int8_t factor = (!(x % 2)) * 2 - 1;
 				for (size_t y = 0; y < width; y++)
 				{
-					newMatrix.At(y, x) = factor * this->GetMinor(x, y).GetDeterminant();
+					newMatrix[y, x] = factor * this->GetMinor(x, y).GetDeterminant();
 					factor = -factor;
 				}
 			}
@@ -70,16 +70,16 @@ namespace Math
 				for (size_t x = 0; x < width; x++)
 				{
 					factor = -factor;
-					if (this->At(x, 0) == T(0))
+					if ((*this)[x][0] == T(0))
 						continue;
-					determinant += factor * this->At(x, 0) * this->GetMinor(x, 0).GetDeterminant();
+					determinant += factor * (*this)[x][0] * this->GetMinor(x, 0).GetDeterminant();
 				}
 				return determinant;
 			}
 			else if constexpr (width == 2)
-				return this->At(0, 0) * this-->At(1, 1) - this->At(1, 0) * this->At(0, 1);
+				return (*this)[0][0] * (*this)[1][1] - (*this)[1][0] * (*this)[0][1];
 			else if constexpr (width == 1)
-				return this->At(0, 0);
+				return (*this)[0][0];
 			else
 				return 1;
 		}
@@ -93,7 +93,7 @@ namespace Math
 			auto adjugate = this->GetAdjugate();
 			T determinant = T();
 			for (size_t x = 0; x < width; x++)
-				determinant += this->At(x, 0) * adjugate.At(0, x);
+				determinant += (*this)[x][0] * adjugate[0][x];
 			if (!(determinant == T()))
 			{
 				for (auto& item : adjugate)
@@ -109,7 +109,7 @@ namespace Math
 		{
 			Math::Matrix<width, width, T> temp{};
 			for (size_t x = 0; x < width; x++)
-				temp.At(x, x) = T(1);
+				temp[x][x] = T(1);
 			return temp;
 		}
 	}

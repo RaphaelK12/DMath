@@ -95,7 +95,7 @@ namespace Math
 		for (size_t x = 0; x < width; x++)
 		{
 			for (size_t y = 0; y < height; y++)
-				temp.At(x, y) = this->At(y, x);
+				temp[x][y] = (*this)[y][x];
 		}
 		return temp;
 	}
@@ -104,14 +104,14 @@ namespace Math
 	constexpr void Matrix<width, height, T>::SwapRows(size_t row1, size_t row2)
 	{
 		for (size_t x = 0; x < width; x++)
-			std::swap(this->At(x, row1), this->At(x, row2));
+			std::swap((*this)[x][row1], (*this)[x][row2]);
 	}
 
 	template<size_t width, size_t height, typename T>
 	constexpr void Matrix<width, height, T>::SwapColumns(size_t column1, size_t column2)
 	{
 		for (size_t y = 0; y < height; y++)
-			std::swap(*this->At(column1, y), this->At(column2, y));
+			std::swap((*this)[column1][y], (*this)[column2][y]);
 	}
 
 	template<size_t width, size_t height, typename T>
@@ -125,9 +125,9 @@ namespace Math
 			for (size_t x = 0; x < width; x++)
 			{
 				if constexpr (std::is_same<char, T>() || std::is_same<unsigned char, T>())
-					stream << +this->At(x, y);
+					stream << +(*this)[x][y];
 				else
-					stream << this->At(x, y);
+					stream << (*this)[x][y];
 				if (x < width - 1)
 					stream << ", ";
 			}
@@ -219,9 +219,9 @@ namespace Math
 		for (size_t i = 0; i < width * height; i++)
 		{
 			if constexpr (unsignedTest)
-				newMatrix.At(x, y) = -static_cast<ReturnType>(this->At(x, y));
+				newMatrix[x][y] = -static_cast<ReturnType>((*this)[x][y]);
 			else
-				newMatrix.At(x, y) = -this->At(x, y);
+				newMatrix[x][y] = -(*this)[x][y];
 		}
 		return newMatrix;
 	}
@@ -238,8 +238,8 @@ namespace Math
 			{
 				ReturnType dot{};
 				for (size_t i = 0; i < width; i++)
-					dot += this->At(i, y) * right.At(x, i);
-				newMatrix.At(x, y) = dot;
+					dot += (*this)[i][y] * right[x][i];
+				newMatrix[x][y] = dot;
 			}
 		}
 		return newMatrix;
@@ -250,7 +250,7 @@ namespace Math
 	constexpr auto Matrix<width, height, T>::operator*(const Vector<width, U>& right) const
 	{
 		using ReturnType = std::common_type_t<T, U>;
-		Math::Vector<height, ReturnType> newVector{};
+		Math::Vector<height, ReturnType> newVector;
 		for (size_t y = 0; y < height; y++)
 		{
 			ReturnType dot = 0;
@@ -265,7 +265,7 @@ namespace Math
 	[[nodiscard]] constexpr auto operator*(const Matrix<width, height, T>& left, const U& right)
 	{
 		using ReturnType = decltype(left.At(0) * right);
-		Matrix<width, height, ReturnType> newMatrix{};
+		Matrix<width, height, ReturnType> newMatrix;
 		for (size_t i = 0; i < width * height; i++)
 			newMatrix.At(i) = left.At(i) * right;
 		return newMatrix;
