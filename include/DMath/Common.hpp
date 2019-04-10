@@ -58,9 +58,13 @@ namespace Math
 			return static_cast<std::make_signed_t<ReturnType>>((input2 - input1) * delta + input1);
 	}
 
-	[[nodiscard]] constexpr float Min(float a, float b)
+	template<typename T, typename U>
+	[[nodiscard]] constexpr auto Min(T a, U b)
 	{
-		return std::min(a, b);
+		static_assert(std::is_arithmetic<T>() && std::is_arithmetic<U>(), "Error. Template arguments of Math::Min must be arithmetic types.");
+
+		using CommonType = std::common_type<T, U>::type;
+		return std::min(static_cast<CommonType>(a), static_cast<CommonType>(b));
 	}
 
 	[[nodiscard]] constexpr float Max(float a, float b)

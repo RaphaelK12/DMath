@@ -219,9 +219,9 @@ namespace Math
 		for (size_t i = 0; i < width * height; i++)
 		{
 			if constexpr (unsignedTest)
-				newMatrix[x][y] = -static_cast<ReturnType>((*this)[x][y]);
+				newMatrix.At(i) = -static_cast<ReturnType>(this->At(i));
 			else
-				newMatrix[x][y] = -(*this)[x][y];
+				newMatrix.At(i) = -this->At(i);
 		}
 		return newMatrix;
 	}
@@ -231,7 +231,7 @@ namespace Math
 	constexpr auto Matrix<width, height, T>::operator*(const Matrix<widthB, width, U>& right) const
 	{
 		using ReturnType = std::common_type_t<T, U>;
-		Matrix<widthB, height, ReturnType> newMatrix;
+		Matrix<widthB, height, ReturnType> newMatrix{};
 		for (size_t x = 0; x < widthB; x++)
 		{
 			for (size_t y = 0; y < height; y++)
