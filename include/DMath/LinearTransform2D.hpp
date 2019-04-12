@@ -11,7 +11,7 @@ namespace Math
 {
 	namespace LinearTransform2D
 	{
-		[[nodiscard]] constexpr Matrix<3, 2> Multiply(const Matrix<3, 2>& left, const Matrix<3, 2>& right);
+		[[nodiscard]] constexpr Matrix<3, 2> Multiply_Reduced(const Matrix<3, 2>& left, const Matrix<3, 2>& right);
 		template<typename T = float>
 		[[nodiscard]] constexpr Matrix<4, 4, T> AsMat4(const Matrix<3, 2, T>& input);
 
@@ -49,7 +49,7 @@ namespace Math
 	namespace LinTran2D = LinearTransform2D;
 }
 
-constexpr Math::Matrix<3, 2> Math::LinearTransform2D::Multiply(const Matrix<3, 2>& left, const Matrix<3, 2>& right)
+constexpr Math::Matrix<3, 2> Math::LinearTransform2D::Multiply_Reduced(const Matrix<3, 2>& left, const Matrix<3, 2>& right)
 {
 	Math::Matrix<3, 2> newMatrix{};
 	for (size_t x = 0; x < 2; x++)

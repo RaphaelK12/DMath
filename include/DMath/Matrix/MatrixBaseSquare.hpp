@@ -53,7 +53,7 @@ namespace Math
 				int8_t factor = (!(x % 2)) * 2 - 1;
 				for (size_t y = 0; y < width; y++)
 				{
-					newMatrix[y, x] = factor * this->GetMinor(x, y).GetDeterminant();
+					newMatrix[y][x] = factor * this->GetMinor(x, y).GetDeterminant();
 					factor = -factor;
 				}
 			}

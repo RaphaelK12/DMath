@@ -28,7 +28,6 @@ namespace Math
 		constexpr const T& operator[](size_t index) const;
 
 		constexpr UnitQuaternion<T> operator*(const UnitQuaternion<T>& right) const;
-		explicit constexpr operator Matrix<3, 3, T>() const;
 		explicit constexpr operator Matrix<4, 3, T>() const;
 		explicit constexpr operator Matrix<4, 4, T>() const;
 		
@@ -47,6 +46,7 @@ namespace Math
 
 		static_assert(std::is_floating_point_v<T>, "Error. Math::RotationQuaternion must be floating point type.");
 	};
+	static_assert(sizeof(UnitQuaternion<float>) == sizeof(float) * 4, "Error. Math::UnitQuaternion's members must be tightly packed.");
 
 	template<typename T>
 	inline constexpr UnitQuaternion<T>::UnitQuaternion() noexcept :
@@ -117,7 +117,7 @@ namespace Math
 	}
 
 	template<typename T>
-	constexpr UnitQuaternion<T> UnitQuaternion<T>::operator*(const UnitQuaternion& right) const
+	constexpr UnitQuaternion<T> UnitQuaternion<T>::operator*(const UnitQuaternion<T>& right) const
 	{
 		return UnitQuaternion<T>
 		{
@@ -125,17 +125,6 @@ namespace Math
 			s * right.x + right.s * x + y * right.z - right.y * z,
 			s * right.y + right.s * y + z * right.x - right.z * x,
 			s * right.z + right.s * z + x * right.y - right.x * y
-		};
-	}
-
-	template<typename T>
-	constexpr UnitQuaternion<T>::operator Matrix<3, 3, T>() const
-	{
-		return Matrix<3, 3, T>
-		{
-			1 - 2 * Sqrd(y) - 2 * Sqrd(z), 2 * x*y + 2 * z*s, 2 * x*z - 2 * y*s,
-			2 * x*y - 2 * z*s, 1 - 2 * Sqrd(x) - 2 * Sqrd(z), 2 * y*z + 2 * x*s,
-			2 * x*z + 2 * y*s, 2 * y*z - 2 * x*s, 1 - 2 * Sqrd(x) - 2 * Sqrd(y),
 		};
 	}
 

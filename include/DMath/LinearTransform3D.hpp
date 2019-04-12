@@ -8,7 +8,6 @@
 #include "Enum.hpp"
 #include "Trigonometric.hpp"
 
-#include <exception>
 #include <string_view>
 #include <cassert>
 
@@ -16,7 +15,7 @@ namespace Math
 {
 	namespace LinearTransform3D
 	{
-		[[nodiscard]] constexpr Matrix<4, 3> Multiply(const Matrix<4, 3>& left, const Matrix<4, 3>& right);
+		[[nodiscard]] constexpr Matrix<4, 3> Multiply_Reduced(const Matrix<4, 3>& left, const Matrix<4, 3>& right);
 		[[nodiscard]] constexpr Matrix4x4 AsMat4(const Matrix<4, 3>& input);
 
 		[[nodiscard]] constexpr Matrix4x4 Translate(float x, float y, float z);
@@ -43,6 +42,8 @@ namespace Math
 		[[nodiscard]] Matrix3x3 Rotate(const Vector3D& angles);
 		template<AngleUnit angleUnit = Setup::defaultAngleUnit>
 		[[nodiscard]] Matrix3x3 Rotate(const Vector3D& axis, float amount);
+		template<typename T>
+		[[nodiscard]] constexpr Matrix<3, 3, T> Rotate(const UnitQuaternion<T>& quat);
 		[[nodiscard]] constexpr Matrix4x4 Rotate_Homo(const UnitQuaternion<>& quat);
 		[[nodiscard]] constexpr Matrix<4, 3> Rotate_Reduced(const UnitQuaternion<>& quat);
 
@@ -74,7 +75,7 @@ namespace Math
 	namespace LinTran3D = LinearTransform3D;
 }
 
-constexpr Math::Matrix<4, 3> Math::LinearTransform3D::Multiply(const Matrix<4, 3>& left, const Matrix<4, 3>& right)
+constexpr Math::Matrix<4, 3> Math::LinearTransform3D::Multiply_Reduced(const Matrix<4, 3>& left, const Matrix<4, 3>& right)
 {
 	Math::Matrix<4, 3> newMatrix{};
 	for (size_t x = 0; x < 3; x++)
@@ -242,6 +243,22 @@ Math::Matrix3x3 Math::LinearTransform3D::Rotate(const Vector3D& axisInput, float
 		axis.y*axis.x*(1 - cos) + axis.z*sin, cos + Sqrd(axis.y)*(1 - cos), axis.y*axis.z*(1 - cos) - axis.x*sin,
 		axis.z*axis.x*(1 - cos) - axis.y*sin, axis.z*axis.y*(1 - cos) + axis.x*sin, cos + Sqrd(axis.z)*(1 - cos)
 	}.GetTransposed();
+}
+
+template<typename T>
+[[nodiscard]] constexpr Math::Matrix<3, 3, T> Math::LinearTransform3D::Rotate(const UnitQuaternion<T>& quat)
+{
+	const auto& s = quat.GetS();
+	const auto& x = quat.GetX();
+	const auto& y = quat.GetY();
+	const auto& z = quat.GetZ();
+
+	return Matrix<3, 3, T>
+	{
+		1 - 2 * Sqrd(y) - 2 * Sqrd(z), 2 * x* y + 2 * z * s, 2 * x* z - 2 * y * s,
+		2 * x* y - 2 * z * s, 1 - 2 * Sqrd(x) - 2 * Sqrd(z), 2 * y* z + 2 * x * s,
+		2 * x* z + 2 * y * s, 2 * y* z - 2 * x * s, 1 - 2 * Sqrd(x) - 2 * Sqrd(y),
+	};
 }
 
 constexpr Math::Matrix4x4 Math::LinearTransform3D::Rotate_Homo(const UnitQuaternion<>& quat)

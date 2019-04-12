@@ -67,9 +67,13 @@ namespace Math
 		return std::min(static_cast<CommonType>(a), static_cast<CommonType>(b));
 	}
 
-	[[nodiscard]] constexpr float Max(float a, float b)
+	template<typename T, typename U>
+	[[nodiscard]] constexpr auto Max(T a, U b)
 	{
-		return std::max(a, b);
+		static_assert(std::is_arithmetic<T>() && std::is_arithmetic<U>(), "Error. Template arguments of Math::Min must be arithmetic types.");
+
+		using CommonType = std::common_type<T, U>::type;
+		return std::max(static_cast<CommonType>(a), static_cast<CommonType>(b));
 	}
 
 	template<typename T1, typename T2>
