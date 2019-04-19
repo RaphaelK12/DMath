@@ -16,6 +16,8 @@ namespace Math
 	namespace LinearTransform3D
 	{
 		[[nodiscard]] constexpr Matrix<4, 3> Multiply_Reduced(const Matrix<4, 3>& left, const Matrix<4, 3>& right);
+		template<typename T = float>
+		[[nodiscard]] constexpr Vector<3, T> Multiply_Reduced(const Matrix<4, 3, T>& left, const Vector<3, T>& right);
 		[[nodiscard]] constexpr Matrix4x4 AsMat4(const Matrix<4, 3>& input);
 
 		[[nodiscard]] constexpr Matrix4x4 Translate(float x, float y, float z);
@@ -99,6 +101,22 @@ constexpr Math::Matrix<4, 3> Math::LinearTransform3D::Multiply_Reduced(const Mat
 	}
 
 	return newMatrix;
+}
+
+template<typename T>
+[[nodiscard]] constexpr Math::Vector<3, T> Math::LinearTransform3D::Multiply_Reduced(const Matrix<4, 3, T>& left, const Vector<3, T>& right)
+{
+	Math::Vector<3, T> newVector{};
+
+	for (size_t y = 0; y < 3; y++)
+	{
+		T dot{};
+		for (size_t i = 0; i < 3; i++)
+			dot += left[i][y] * right[i];
+		newVector[y] = dot + left[3][y];
+	}
+
+	return newVector;
 }
 
 constexpr Math::Matrix4x4 Math::LinearTransform3D::AsMat4(const Math::Matrix<4, 3>& input)

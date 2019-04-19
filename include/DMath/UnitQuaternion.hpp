@@ -80,9 +80,9 @@ namespace Math
 		T s3 = Sin<AngleUnit::Degrees>(eulerAngles.z / 2);
 
 		s = c1*c2*c3 - s1*s2*s3;
-		x = s1*s2*c3 + c1*c2*s3;
 		y = s1*c2*c3 + c1*s2*s3;
-		z = c1*s2*c3 - c1*s2*s3;
+		x = c1*s2*c3 - c1*s2*s3;
+		z = s1 * s2 * c3 + c1 * c2 * s3;
 	}
 
 	template<typename T>

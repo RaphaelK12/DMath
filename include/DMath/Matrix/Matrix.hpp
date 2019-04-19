@@ -250,10 +250,10 @@ namespace Math
 	constexpr auto Matrix<width, height, T>::operator*(const Vector<width, U>& right) const
 	{
 		using ReturnType = std::common_type_t<T, U>;
-		Math::Vector<height, ReturnType> newVector;
+		Vector<height, ReturnType> newVector;
 		for (size_t y = 0; y < height; y++)
 		{
-			ReturnType dot = 0;
+			ReturnType dot{};
 			for (size_t i = 0; i < width; i++)
 				dot += (*this)[i][y] * right[i];
 			newVector[y] = dot;
@@ -261,8 +261,8 @@ namespace Math
 		return newVector;
 	}
 
-	template<size_t width, size_t height, typename T, typename U>
-	[[nodiscard]] constexpr auto operator*(const Matrix<width, height, T>& left, const U& right)
+	template<size_t width, size_t height, typename T>
+	[[nodiscard]] constexpr auto operator*(const Matrix<width, height, T>& left, const T& right)
 	{
 		using ReturnType = decltype(left.At(0) * right);
 		Matrix<width, height, ReturnType> newMatrix;
@@ -271,8 +271,8 @@ namespace Math
 		return newMatrix;
 	}
 
-	template<size_t width, size_t height, typename T, typename U>
-	[[nodiscard]] constexpr auto operator*(const U& left, const Matrix<width, height, T>& right)
+	template<size_t width, size_t height, typename T>
+	[[nodiscard]] constexpr auto operator*(const T& left, const Matrix<width, height, T>& right)
 	{
 		using ReturnType = decltype(left * right.At(0));
 		Matrix<width, height, ReturnType> newMatrix{};
