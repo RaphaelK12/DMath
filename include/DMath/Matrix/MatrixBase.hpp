@@ -22,7 +22,7 @@ namespace Math
 		public:
 			static constexpr bool IsColumnMajor();
 
-			std::array<T, width * height> data;
+			std::array<T, width * height> data = {};
 
 			[[nodiscard]] constexpr T& At(size_t x, size_t y);
 			[[nodiscard]] constexpr const T& At(size_t x, size_t y) const;

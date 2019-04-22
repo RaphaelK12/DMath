@@ -63,7 +63,7 @@ namespace Math
 	{
 		static_assert(std::is_arithmetic<T>() && std::is_arithmetic<U>(), "Error. Template arguments of Math::Min must be arithmetic types.");
 
-		using CommonType = std::common_type<T, U>::type;
+		using CommonType = std::common_type_t<T, U>;
 		return std::min(static_cast<CommonType>(a), static_cast<CommonType>(b));
 	}
 
@@ -72,7 +72,7 @@ namespace Math
 	{
 		static_assert(std::is_arithmetic<T>() && std::is_arithmetic<U>(), "Error. Template arguments of Math::Min must be arithmetic types.");
 
-		using CommonType = std::common_type<T, U>::type;
+		using CommonType = std::common_type_t<T, U>;
 		return std::max(static_cast<CommonType>(a), static_cast<CommonType>(b));
 	}
 
