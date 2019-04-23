@@ -62,7 +62,6 @@ namespace Math
 	[[nodiscard]] constexpr auto Min(T a, U b)
 	{
 		static_assert(std::is_arithmetic<T>() && std::is_arithmetic<U>(), "Error. Template arguments of Math::Min must be arithmetic types.");
-
 		using CommonType = typename std::common_type_t<T, U>;
 		return std::min(static_cast<CommonType>(a), static_cast<CommonType>(b));
 	}
@@ -71,7 +70,6 @@ namespace Math
 	[[nodiscard]] constexpr auto Max(T a, U b)
 	{
 		static_assert(std::is_arithmetic<T>() && std::is_arithmetic<U>(), "Error. Template arguments of Math::Min must be arithmetic types.");
-
 		using CommonType = typename std::common_type_t<T, U>;
 		return std::max(static_cast<CommonType>(a), static_cast<CommonType>(b));
 	}
