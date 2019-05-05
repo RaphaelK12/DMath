@@ -8,47 +8,57 @@
 namespace Math
 {
 	template<typename T>
-	[[nodiscard]] auto Abs(const T& input)
+	[[nodiscard]] auto Abs(T input)
 	{
 		static_assert(std::is_arithmetic_v<T>, "Input of Math::Abs must be of numeric type.");
 		return std::abs(input);
 	}
 	
 	template<typename T>
-	[[nodiscard]] auto Ceil(const T& input)
+	[[nodiscard]] auto Ceil(T input)
 	{
 		static_assert(std::is_arithmetic_v<T>, "Input of Math::Ceil must be of numeric type.");
 		return std::ceil(input);
 	}
 
 	template<typename T>
-	[[nodiscard]] constexpr T Clamp(const T& value, const T& min, const T& max)
+	[[nodiscard]] auto CeilToNearestMultiple(T value, T multiple)
+	{
+		static_assert(std::is_integral_v<T> && std::is_unsigned_v<T>, "Input of Math::CeilToNearestMultiple must be of unsigned integral type.");
+		if (value > multiple)
+			return value - (value % multiple);
+		else
+			return value + multiple - (value % multiple);
+	}
+
+	template<typename T>
+	[[nodiscard]] constexpr T Clamp(T value, T min, T max)
 	{
 		static_assert(std::is_arithmetic_v<T>, "Input of Math::Clamp must be of numeric type.");
 		return std::clamp(value, min, max);
 	}
 
 	template<typename T>
-	[[nodiscard]] auto Floor(const T& input)
+	[[nodiscard]] auto Floor(T input)
 	{
 		static_assert(std::is_arithmetic_v<T>, "Input of Math::Floor must be of numeric type.");
 		return std::floor(input);
 	}
 
 	template<typename T>
-	[[nodiscard]] auto Hypot(const T& x, const T& y)
+	[[nodiscard]] auto Hypot(T x, T y)
 	{
 		return std::hypot(x, y);
 	}
 
 	template<typename T>
-	[[nodiscard]] auto Hypot(const T& x, const T& y, const T& z)
+	[[nodiscard]] auto Hypot(T x, T y, T z)
 	{
 		return std::hypot(x, y, z);
 	}
 
 	template<typename T1, typename T2, typename T3>
-	[[nodiscard]] constexpr auto Lerp(const T1& input1, const T2& input2, const T3& delta)
+	[[nodiscard]] constexpr auto Lerp(T1 input1, T2 input2, T3 delta)
 	{
 		static_assert(std::is_arithmetic_v<T1> && std::is_arithmetic_v<T2> && std::is_arithmetic_v<T3>, "Input of Math::Lerp must be of numeric type.");
 		using ReturnType = std::common_type_t<T1, T2, T3>;
@@ -75,35 +85,35 @@ namespace Math
 	}
 
 	template<typename T1, typename T2>
-	[[nodiscard]] auto Pow(const T1& coefficient, const T2& exponent)
+	[[nodiscard]] auto Pow(T1 coefficient, T2 exponent)
 	{
 		static_assert(std::is_arithmetic_v<T1> && std::is_arithmetic_v<T2>, "Input of Math::Pow must be of numeric type.");
 		return std::pow(coefficient, exponent);
 	}
 
 	template<typename T>
-	[[nodiscard]] auto Round(const T& input)
+	[[nodiscard]] auto Round(T input)
 	{
 		static_assert(std::is_arithmetic_v<T>, "Input of Math::Round must be of numeric type.");
 		return std::round(input);
 	}
 
 	template<typename T>
-	[[nodiscard]] constexpr auto Sqrd(const T& input)
+	[[nodiscard]] constexpr auto Sqrd(T input)
 	{
 		static_assert(std::is_arithmetic_v<T>, "Input of Math::Sqrd must be of numeric type.");
 		return input * input;
 	}
 
 	template<typename T>
-	[[nodiscard]] auto Sqrt(const T& input)
+	[[nodiscard]] auto Sqrt(T input)
 	{
 		static_assert(std::is_arithmetic_v<T>, "Input of Math::Sqrt must be of numeric type.");
 		return std::sqrt(input);
 	}
 
 	template<typename T>
-	[[nodiscard]] auto Truncate(const T& input)
+	[[nodiscard]] auto Truncate(T input)
 	{
 		static_assert(std::is_arithmetic_v<T>, "Input of Math::Truncate must be of numeric type.");
 		return std::trunc(input);
