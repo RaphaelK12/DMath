@@ -5,6 +5,10 @@
 
 #include <type_traits>
 
+#ifdef _MSC_VER
+#include <intrin.h>
+#endif
+
 namespace Math
 {
 	template<typename T>
@@ -22,26 +26,56 @@ namespace Math
 	}
 
 	template<typename T>
-	[[nodiscard]] auto CeilToNearestMultiple(T value, T multiple)
+	[[nodiscard]] constexpr auto CeilToNearestMultiple(T value, T multiple)
 	{
 		static_assert(std::is_integral_v<T> && std::is_unsigned_v<T>, "Input of Math::CeilToNearestMultiple must be of unsigned integral type.");
-		if (value > multiple)
-			return value - (value % multiple);
+		if (value < multiple)
+			return multiple;
 		else
-			return value + multiple - (value % multiple);
+		{
+			const auto delta = value % multiple;
+			if (delta == T(0))
+				return value; 
+			else
+				return value - delta + multiple;
+		}
+	}
+
+	[[nodiscard]] inline auto CeilToNearestPowerOf2(uint16_t in) -> uint16_t
+	{
+		constexpr uint16_t bitSize = uint16_t(sizeof(uint16_t) * 8);
+#ifdef _MSC_VER
+		return uint16_t(1) << (bitSize - __lzcnt16(in));
+#endif
+	}
+
+	[[nodiscard]] inline auto CeilToNearestPowerOf2(uint32_t in) -> uint32_t
+	{
+		constexpr uint32_t bitSize = uint32_t(sizeof(uint32_t) * 8);
+#ifdef _MSC_VER
+		return uint32_t(1) << (bitSize - __lzcnt(in));
+#endif
+	}
+
+	[[nodiscard]] inline auto CeilToNearestPowerOf2(uint64_t in) -> uint64_t
+	{
+		constexpr uint64_t bitSize = uint64_t(sizeof(uint64_t) * 8);
+#ifdef _MSC_VER
+		return uint64_t(1) << (bitSize - __lzcnt64(in));
+#endif
 	}
 
 	template<typename T>
-	[[nodiscard]] constexpr T Clamp(T value, T min, T max)
+	[[nodiscard]] constexpr auto Clamp(T value, T min, T max) -> T
 	{
-		static_assert(std::is_arithmetic_v<T>, "Input of Math::Clamp must be of numeric type.");
+		static_assert(std::is_arithmetic_v<T>, "Input of " __FUNCTION__ " requires type T to be an arithmetic type.");
 		return std::clamp(value, min, max);
 	}
 
 	template<typename T>
 	[[nodiscard]] auto Floor(T input)
 	{
-		static_assert(std::is_arithmetic_v<T>, "Input of Math::Floor must be of numeric type.");
+		static_assert(std::is_arithmetic_v<T>, "Input of " __FUNCTION__ " must be of numeric type.");
 		return std::floor(input);
 	}
 
@@ -68,18 +102,24 @@ namespace Math
 			return static_cast<std::make_signed_t<ReturnType>>((input2 - input1) * delta + input1);
 	}
 
-	template<typename T, typename U>
-	[[nodiscard]] constexpr auto Min(T a, U b)
+	template<typename T>
+	[[nodiscard]] auto Log(T in)
 	{
-		static_assert(std::is_arithmetic<T>() && std::is_arithmetic<U>(), "Error. Template arguments of Math::Min must be arithmetic types.");
+		return std::log(in);
+	}
+
+	template<typename T, typename U>
+	[[nodiscard]] constexpr auto Min(T a, U b) -> std::common_type_t<T, U>
+	{
+		static_assert(std::is_arithmetic_v<T> && std::is_arithmetic_v<U>, "Error. Arguments of " __FUNCTION__ " must be arithmetic types.");
 		using CommonType = typename std::common_type_t<T, U>;
 		return std::min(static_cast<CommonType>(a), static_cast<CommonType>(b));
 	}
 
 	template<typename T, typename U>
-	[[nodiscard]] constexpr auto Max(T a, U b)
+	[[nodiscard]] constexpr auto Max(T a, U b) -> std::common_type_t<T, U>
 	{
-		static_assert(std::is_arithmetic<T>() && std::is_arithmetic<U>(), "Error. Template arguments of Math::Min must be arithmetic types.");
+		static_assert(std::is_arithmetic<T>() && std::is_arithmetic<U>(), "Error. Arguments of " __FUNCTION__ " must be arithmetic types.");
 		using CommonType = typename std::common_type_t<T, U>;
 		return std::max(static_cast<CommonType>(a), static_cast<CommonType>(b));
 	}
