@@ -17,337 +17,162 @@ namespace Math
 	template<size_t length, typename T>
 	struct Vector;
 
-	namespace detail
+	namespace Iterators
 	{
 		template<size_t length, typename T>
-		struct VectorBase;
-
-		namespace Vector
-		{
-			template<size_t length, typename T>
-			class Iterator
-			{
-				VectorBase<length, T>& obj;
-				size_t index;
-			public:
-				constexpr Iterator(VectorBase<length, T>& obj, size_t index = 0) noexcept : obj(obj), index(index) {}
-
-				static constexpr Iterator<length, T> End(VectorBase<length, T>& obj) { return Iterator<length, T>(obj, length); }
-
-				[[nodiscard]] constexpr T& operator*() { assert(index < length); return obj[index]; }
-				constexpr Iterator<length, T>& operator++() { index++; return *this; }
-				constexpr Iterator<length, T>& operator--() { index--; return *this; }
-				constexpr bool operator!=(const Iterator<length, T>& right) const { return &obj != &right.obj || index != right.index; }
-				constexpr bool operator==(const Iterator<length, T>& right) const { return &obj == &right.obj && index == right.index; }
-			};
-
-			template<size_t length, typename T>
-			class ConstIterator
-			{
-				const VectorBase<length, T>& obj;
-				size_t index;
-			public:
-				constexpr ConstIterator(const VectorBase<length, T>& obj, size_t index = 0) noexcept : obj(obj), index(index) {}
-
-				static constexpr ConstIterator<length, T> End(const VectorBase<length, T>& obj) { return ConstIterator<length, T>(obj, length); }
-
-				[[nodiscard]] constexpr const T& operator*() { assert(index < length); return obj[index]; }
-				constexpr ConstIterator<length, T>& operator++() { index++; return *this; }
-				constexpr ConstIterator<length, T>& operator--() { index--; return *this; }
-				constexpr bool operator!=(const ConstIterator<length, T>& right) const { return &obj != &right.obj || index != right.index; }
-				constexpr bool operator==(const ConstIterator<length, T>& right) const { return &obj == &right.obj && index == right.index; }
-			};
-		}
-
-		template<size_t length, typename T>
-		struct VectorBaseStruct
+		class VectorIterator
 		{
 		private:
-			std::array<T, length> data;
+			static_assert(length > 0, "Length must be non-zero.");
+
+			Vector<length, T>& obj;
+			size_t index;
+
 		public:
-			[[nodiscard]] constexpr T& operator[](size_t index) { return const_cast<T&>(std::as_const(*this)[index]); }
-			[[nodiscard]] constexpr const T& operator[](size_t index) const { return data[index]; }
-			[[nodiscard]] constexpr T* Data() { return data.data(); }
-			[[nodiscard]] constexpr const T* Data() const { return data.data(); }
-		};
-
-		template<typename T>
-		struct VectorBaseStruct<2, T>
-		{
-			T x = T{};
-			T y = T{};
-			[[nodiscard]] constexpr T& operator[](size_t index) { return const_cast<T&>(std::as_const(*this)[index]); }
-			[[nodiscard]] constexpr const T& operator[](size_t index) const
+			constexpr VectorIterator(Vector<length, T>& obj, size_t index) :
+				obj(obj),
+				index(index)
 			{
-				assert(index < 2);
-				switch (index)
-				{
-				case 0:
-					return x;
-				case 1:
-					return y;
-				default:
-					return x;
-				}
+				if (index > length)
+					index = length;
 			}
-			[[nodiscard]] constexpr T* Data() { return &x; }
-			[[nodiscard]] constexpr const T* Data() const { return &x; }
-		};
 
-		template<typename T>
-		struct VectorBaseStruct<3, T>
-		{
-			T x = T{};
-			T y = T{};
-			T z = T{};
-			[[nodiscard]] constexpr T& operator[](size_t index) { return const_cast<T&>(std::as_const(*this)[index]); }
-			[[nodiscard]] constexpr const T& operator[](size_t index) const
+			static constexpr VectorIterator<length, T> Begin(Vector<length, T>& obj)
 			{
-				assert(index < 3);
-				switch (index)
-				{
-				case 0:
-					return x;
-				case 1:
-					return y;
-				case 2:
-					return z;
-				default:
-					return x;
-				}
+				return VectorIterator<length, T>{ obj, 0 };
 			}
-			[[nodiscard]] constexpr T* Data() { return &x; }
-			[[nodiscard]] constexpr const T* Data() const { return &x; }
-		};
 
-		template<typename T>
-		struct VectorBaseStruct<4, T>
-		{
-			T x = T{};
-			T y = T{};
-			T z = T{};
-			T w = T{};
-			[[nodiscard]] constexpr T& operator[](size_t index) { return const_cast<T&>(std::as_const(*this)[index]); }
-			[[nodiscard]] constexpr const T& operator[](size_t index) const
+			static constexpr VectorIterator<length, T> ReverseBegin(Vector<length, T>& obj)
 			{
-				assert(index < 4);
-				switch (index)
-				{
-				case 0:
-					return x;
-				case 1:
-					return y;
-				case 2:
-					return z;
-				case 3:
-					return w;
-				default:
-					return x;
-				}
+				return VectorIterator<length, T>{ obj, length - 1 };
 			}
-			[[nodiscard]] constexpr T* Data() { return &x; }
-			[[nodiscard]] constexpr const T* Data() const { return &x; }
-		};
 
-		template<size_t length, typename T>
-		struct VectorBase : public VectorBaseStruct<length, T>
-		{
-			using ParentType = VectorBaseStruct<length, T>;
-			using LengthType = size_t;
-			using ValueType = T;
-			using Iterator = Vector::Iterator<length, T>;
-			using ConstIterator = Vector::ConstIterator<length, T>;
-
-			[[nodiscard]] static constexpr size_t GetLength();
-
-			[[nodiscard]] auto Magnitude() const;
-			[[nodiscard]] auto MagnitudeSqrd() const;
-
-			[[nodiscard]] auto GetNormalized() const;
-			void Normalize();
-
-			template<typename T2>
-			[[nodiscard]] static constexpr auto Dot(const VectorBase<length, T>& left, const VectorBase<length, T2>& right);
-
-			[[nodiscard]] static constexpr Math::Vector<length, T> SingleValue(const T& input);
-			[[nodiscard]] static constexpr Math::Vector<length, T> Zero();
-			[[nodiscard]] static constexpr Math::Vector<length, T> One();
-
-			[[nodiscard]] std::string ToString() const;
-
-			template<typename T2>
-			[[nodiscard]] constexpr auto operator+(const VectorBase<length, T2>& right) const;
-			template<typename T2>
-			[[nodiscard]] constexpr auto operator-(const VectorBase<length, T2>& right) const;
-			[[nodiscard]] constexpr auto operator-() const;
-
-			template<typename T2>
-			[[nodiscard]] constexpr bool operator==(const VectorBase<length, T2>& right) const;
-			template<typename T2>
-			[[nodiscard]] constexpr bool operator!=(const VectorBase<length, T2>& right) const;
-
-			[[nodiscard]] constexpr Vector::Iterator<length, T> begin() { return Vector::Iterator(*this); }
-			[[nodiscard]] constexpr Vector::ConstIterator<length, T> begin() const { return Vector::ConstIterator(*this); }
-			[[nodiscard]] constexpr Vector::Iterator<length, T> end() { return Vector::Iterator<length, T>::End(*this); }
-			[[nodiscard]] constexpr Vector::ConstIterator<length, T> end() const { return Vector::ConstIterator<length, T>::End(*this); }
-		};
-
-		template<size_t length, typename T>
-		constexpr size_t VectorBase<length, T>::GetLength() { return length; }
-
-		template<size_t length, typename T>
-		auto VectorBase<length, T>::Magnitude() const { return Math::Sqrt(MagnitudeSqrd()); }
-
-		template<size_t length, typename T>
-		auto VectorBase<length, T>::MagnitudeSqrd() const
-		{
-			T sum = T();
-			for (const auto& item : (*this))
-				sum += Math::Sqrd(item);
-			return sum;
-		}
-
-		template<size_t length, typename T>
-		auto VectorBase<length, T>::GetNormalized() const
-		{
-			auto magnitude = Magnitude();
-			using ReturnType = decltype((*this)[0] / magnitude);
-			Math::Vector<length, ReturnType> returnVector;
-			for (size_t i = 0; i < length; i++)
-				returnVector[i] = (*this)[i] / magnitude;
-			return returnVector;
-		}
-
-		template<size_t length, typename T>
-		void VectorBase<length, T>::Normalize()
-		{
-			auto magnitude = Magnitude();
-			for (auto& item : (*this))
-				item /= magnitude;
-		}
-
-		template<size_t length, typename T>
-		constexpr Math::Vector<length, T> VectorBase<length, T>::SingleValue(const T& input)
-		{
-			Math::Vector<length, T> newVector;
-			for (auto& item : newVector)
-				item = input;
-			return newVector;
-		}
-
-		template<size_t length, typename T>
-		constexpr Math::Vector<length, T> VectorBase<length, T>::Zero() { return Math::Vector<length, T>::SingleValue(0); }
-
-		template<size_t length, typename T>
-		constexpr Math::Vector<length, T> VectorBase<length, T>::One() { return Math::Vector<length, T>::SingleValue(1); }
-
-		template<size_t length, typename T>
-		std::string VectorBase<length, T>::ToString() const
-		{
-			std::ostringstream stream;
-			stream << '(';
-			for (size_t i = 0; i < length; i++)
+			static constexpr VectorIterator<length, T> End(Vector<length, T>& obj) 
 			{
-				if constexpr (std::is_same<char, T>() || std::is_same<unsigned char, T>())
-					stream << +(*this)[i];
+				return VectorIterator<length, T>{ obj, length };
+			}
+
+			[[nodiscard]] constexpr T& operator*() const
+			{
+				assert(index < length);
+				return obj[index];
+			}
+			constexpr VectorIterator<length, T>& operator++()
+			{
+				if (index < length)
+					index++;
+				return *this;
+			}
+			constexpr VectorIterator<length, T> operator++(int)
+			{
+				VectorIterator<length, T> old = *this;
+				if (index < length)
+					index++;
+				return old;
+			}
+			constexpr VectorIterator<length, T>& operator--() 
+			{
+				if (index == 0)
+					index = length;
 				else
-					stream << (*this)[i];
-				if (i < length - 1)
-					stream << ", ";
+					index--;
+				return *this; 
 			}
-			stream << ')';
-			return stream.str();
-		}
-
-		template<size_t length, typename T>
-		template<typename T2>
-		constexpr auto VectorBase<length, T>::Dot(const VectorBase<length, T>& left, const VectorBase<length, T2>& right)
-		{
-			using ReturnType = decltype(left[0] * right[0]);
-			ReturnType dotProduct = ReturnType();
-			for (size_t i = 0; i < length; i++)
-				dotProduct += left[i] * right[i];
-			return dotProduct;
-		}
-
-		template<size_t length, typename T>
-		template<typename T2>
-		constexpr auto VectorBase<length, T>::operator+(const VectorBase<length, T2>& right) const
-		{
-			using ReturnType = decltype((*this)[0] + right[0]);
-			Math::Vector<length, ReturnType> newVector;
-			for (size_t i = 0; i < length; i++)
-				newVector[i] = (*this)[i] + right[i];
-			return newVector;
-		}
-
-		template<size_t length, typename T>
-		template<typename T2>
-		constexpr auto VectorBase<length, T>::operator-(const VectorBase<length, T2>& right) const
-		{
-			using ReturnType = decltype((*this)[0] - right[0]);
-			Math::Vector<length, ReturnType> newVector;
-			for (size_t i = 0; i < length; i++)
-				newVector[i] = (*this)[i] - right[i];
-			return newVector;
-		}
-
-		template<size_t length, typename T>
-		constexpr Math::Vector<length, T> operator*(const Math::Vector<length, T>& left, const T& right)
-		{
-			Math::Vector<length, T> newVec{};
-			for (size_t i = 0; i < length; i++)
-				newVec[i] = left[i] * right;
-			return newVec;
-		}
-
-		template<size_t length, typename T>
-		constexpr Math::Vector<length, T> operator*(const T& left, const Math::Vector<length, T>& right)
-		{
-			Math::Vector<length, T> newVec;
-			for (size_t i = 0; i < length; i++)
-				newVec[i] = left * right[i];
-			return newVec;
-		}
-
-		template<size_t length, typename T>
-		template<typename T2>
-		constexpr bool VectorBase<length, T>::operator==(const VectorBase<length, T2>& right) const
-		{
-			for (size_t i = 0; i < length; i++)
+			constexpr VectorIterator<length, T> operator--(int)
 			{
-				if ((*this)[i] != right[i])
-					return false;
-			}
-			return true;
-		}
-
-		template<size_t length, typename T>
-		template<typename T2>
-		constexpr bool VectorBase<length, T>::operator!=(const VectorBase<length, T2>& right) const
-		{
-			for (size_t i = 0; i < length; i++)
-			{
-				if ((*this)[i] != right[i])
-					return true;
-			}
-			return false;
-		}
-
-		template<size_t length, typename T>
-		constexpr auto VectorBase<length, T>::operator-() const
-		{
-			constexpr bool unsignedTest = std::is_unsigned<T>::value;
-			using ReturnType = typename std::conditional<unsignedTest, T, T>::type;
-			Math::Vector<length, ReturnType> newVector;
-			for (size_t i = 0; i < length; i++)
-			{
-				if constexpr (unsignedTest)
-					newVector[i] = -static_cast<ReturnType>((*this)[i]);
+				VectorIterator<length, T> old = *this;
+				if (index == 0)
+					index = length;
 				else
-					newVector[i] = -(*this)[i];
+					index--;
+				return old;
 			}
-			return newVector;
-		}
+			constexpr bool operator==(const VectorIterator<length, T>& right) const 
+			{ 
+				return &obj == &right.obj && index == right.index; 
+			}
+			constexpr bool operator!=(const VectorIterator<length, T>& right) const 
+			{
+				return &obj != &right.obj || index != right.index; 
+			}
+		};
+
+		template<size_t length, typename T>
+		class VectorConstIterator
+		{
+		private:
+			static_assert(length > 0, "Length must be non-zero.");
+
+			const Vector<length, T>& obj;
+			size_t index;
+
+		public:
+			constexpr VectorConstIterator(const Vector<length, T>& obj, size_t index) :
+				obj(obj),
+				index(index)
+			{
+				if (index > length)
+					index = length;
+			}
+
+			static constexpr VectorConstIterator<length, T> Begin(const Vector<length, T>& obj)
+			{
+				return VectorConstIterator<length, T>{ obj, 0 };
+			}
+
+			static constexpr VectorConstIterator<length, T> ReverseBegin(const Vector<length, T>& obj)
+			{
+				return VectorConstIterator<length, T>{ obj, length - 1 };
+			}
+
+			static constexpr VectorConstIterator<length, T> End(const Vector<length, T>& obj)
+			{
+				return VectorConstIterator<length, T>{ obj, length };
+			}
+
+			[[nodiscard]] constexpr const T& operator*() const
+			{
+				assert(index < length);
+				return obj[index];
+			}
+			constexpr VectorConstIterator<length, T>& operator++()
+			{
+				if (index < length)
+					index++;
+				return *this;
+			}
+			constexpr VectorConstIterator<length, T> operator++(int)
+			{
+				VectorConstIterator<length, T> old = *this;
+				if (index < length)
+					index++;
+				return old;
+			}
+			constexpr VectorConstIterator<length, T>& operator--()
+			{
+				if (index == 0)
+					index = length;
+				else
+					index--;
+				return *this;
+			}
+			constexpr VectorConstIterator<length, T> operator--(int)
+			{
+				VectorConstIterator<length, T> old = *this;
+				if (index == 0)
+					index = length;
+				else
+					index--;
+				return old;
+			}
+			constexpr bool operator==(const VectorConstIterator<length, T>& right) const
+			{
+				return &obj == &right.obj && index == right.index;
+			}
+			constexpr bool operator!=(const VectorConstIterator<length, T>& right) const
+			{
+				return &obj != &right.obj || index != right.index;
+			}
+		};
 	}
 }

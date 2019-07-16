@@ -1,8 +1,11 @@
 #pragma once
 
-#include "Core.hpp"
+#include "DMath/Vector/Core.hpp"
+#include "DMath/Common.hpp"
 
-#include "../Trigonometric.hpp"
+#include <cstddef>
+#include <cstdint>
+#include <type_traits>
 
 namespace Math
 {
@@ -13,98 +16,222 @@ namespace Math
 	using Vector2DInt = Vector<2, int32_t>;
 
 	template<typename T>
-	struct Vector<2, T> : public detail::VectorBase<2, T>
+	struct Vector<2, T>
 	{
-		/*
-			Start of necessary members.
-		*/
-		using ParentType = detail::VectorBase<2, T>;
+		using ValueType = T;
+		using IteratorType = Iterators::VectorIterator<2, T>;
+		using ConstIteratorType = Iterators::VectorConstIterator<2, T>;
+		static constexpr size_t dimCount = 2;
 
-		constexpr Vector<2, T>& operator+=(const Vector<2, T>& x);
-		constexpr Vector<2, T>& operator-=(const Vector<2, T>& x);
-		constexpr Vector<2, T>& operator*=(const T& x);
-		/*
-			End of necessary members.
-		*/
 
-		constexpr void Rotate(float counterClockwise);
+		T x;
+		T y;
 
-		template<AngleUnit angleUnit = Setup::defaultAngleUnit>
-		[[nodiscard]] Math::Vector<2, T> GetRotated(float degrees) const;
-		[[nodiscard]] constexpr Vector<2, T> GetRotated(bool counterClockwise) const;
+		[[nodiscard]] constexpr Vector<3, T> AsVec3(const T& zValue = T()) const
+		{
+			return Vector<3, T>{ x, y, zValue };
+		}
 
-		[[nodiscard]] constexpr Vector<3, T> AsVec3(const T& zValue = T{}) const;
+		[[nodiscard]] constexpr Vector<4, T> AsVec4(const T& zValue = T(), const T& wValue = T()) const
+		{
+			return Vector<4, T>{ x, y, zValue, wValue };
+		}
 
-		[[nodiscard]] static constexpr Vector<2, T> Up();
-		[[nodiscard]] static constexpr Vector<2, T> Down();
-		[[nodiscard]] static constexpr Vector<2, T> Left();
-		[[nodiscard]] static constexpr Vector<2, T> Right();
+		[[nodiscard]] constexpr T& At(size_t index) 
+		{
+			return const_cast<T&>(std::as_const(*this).At(index)); 
+		}
+
+		[[nodiscard]] constexpr const T& At(size_t index) const
+		{
+			assert(index < dimCount);
+			switch (index)
+			{
+			case 0:
+				return x;
+			case 1:
+				return y;
+			default:
+				return *(T*)nullptr;
+			}
+		}
+
+		[[nodiscard]] static constexpr T Dot(const Vector<2, T>& lhs, const Vector<2, T>& rhs)
+		{
+			return (lhs.x * rhs.x) + (lhs.y * rhs.y);
+		}
+
+		[[nodiscard]] auto GetNormalized() const -> Vector<2, typename std::conditional<std::is_integral<T>::value, float, T>::type>
+		{
+			using ReturnValueType = typename std::conditional<std::is_integral<T>::value, float, T>::type;
+			const auto& magnitude = Magnitude();
+			return Vector<2, ReturnValueType>{ x / magnitude, y / magnitude };
+		}
+
+		[[nodiscard]] auto Magnitude() const -> typename std::conditional<std::is_integral<T>::value, float, T>::type
+		{
+			if constexpr (std::is_integral<T>::value)
+				return Sqrt(float((x * x) + (y * y)));
+			else
+				return Sqrt((x * x) + (y * y));
+		}
+
+		[[nodiscard]] constexpr T MagnitudeSqrd() const
+		{
+			return (x * x) + (y * y);
+		}
+
+		void Normalize()
+		{
+			static_assert(std::is_floating_point<T>::value, "Cannot normalize an integral vector.");
+			const auto& magnitude = Magnitude();
+			x /= magnitude;
+			y /= magnitude;
+		}
+
+		[[nodiscard]] std::string ToString() const
+		{
+			std::ostringstream stream;
+
+			if constexpr (std::is_floating_point<T>::value)
+			{
+				stream.flags(std::ios::fixed);
+				stream.precision(4);
+			}
+			
+			stream << '(';
+			if constexpr (std::is_same<char, T>::value || std::is_same<unsigned char, T>::value)
+				stream << +x << ", " << +y;
+			else
+				stream << x << ", " << y;
+			stream << ')';
+			return stream.str();
+		}
+
+		[[nodiscard]] static constexpr Vector<2, T> SingleValue(const T& input)
+		{
+			return Vector<2, T>{ input, input };
+		}
+		[[nodiscard]] static constexpr Vector<2, T> Zero()
+		{
+			return Vector<2, T>{ T(0), T(0) };
+		}
+		[[nodiscard]] static constexpr Vector<2, T> One()
+		{
+			return Vector<2, T>{ T(1), T(1) };
+		}
+		[[nodiscard]] static constexpr Vector<2, T> Up()
+		{
+			return Vector<2, T>{T(0), T(1)};
+		}
+		[[nodiscard]] static constexpr Vector<2, T> Down()
+		{
+			return Vector<2, T>{T(0), T(-1)};
+		}
+		[[nodiscard]] static constexpr Vector<2, T> Left()
+		{
+			return Vector<2, T>{T(-1), T(0)};
+		}
+		[[nodiscard]] static constexpr Vector<2, T> Right()
+		{
+			return Vector<2, T>{T(1), T(0)};
+		}
+
+		constexpr Vector<2, T>& operator+=(const Vector<2, T>& rhs)
+		{
+			x += rhs.x;
+			y += rhs.y;
+			return *this;
+		}
+		constexpr Vector<2, T>& operator-=(const Vector<2, T>& rhs)
+		{
+			x -= rhs.x;
+			y -= rhs.y;
+			return *this;
+		}
+		constexpr Vector<2, T>& operator*=(const T& rhs)
+		{
+			x *= rhs;
+			y *= rhs;
+			return *this;
+		}
+		[[nodiscard]] constexpr Vector<2, T> operator+(const Vector<2, T>& rhs) const
+		{
+			return Vector<2, T>{ x + rhs.x, y + rhs.y };
+		}
+		[[nodiscard]] constexpr Vector<2, T> operator-(const Vector<2, T>& rhs) const
+		{
+			return Vector<2, T>{ x - rhs.x, y - rhs.y };
+		}
+		[[nodiscard]] constexpr Vector<2, T> operator-() const
+		{
+			return Vector<2, T>{ -x, -y };
+		}
+		[[nodiscard]] constexpr bool operator==(const Vector<2, T>& rhs) const
+		{
+			return x == rhs.x && y == rhs.y;
+		}
+		[[nodiscard]] constexpr bool operator!=(const Vector<2, T>& rhs) const
+		{
+			return x != rhs.x || y != rhs.y;
+		}
+		[[nodiscard]] constexpr T& operator[](size_t index) { return const_cast<T&>(std::as_const(*this)[index]); }
+		[[nodiscard]] constexpr const T& operator[](size_t index) const
+		{
+			assert(index < dimCount);
+			switch (index)
+			{
+			case 0:
+				return x;
+			case 1:
+				return y;
+			default:
+				return *(T*)nullptr;
+			}
+		}
+		template<typename U>
+		[[nodiscard]] constexpr explicit operator Vector<2, U>() const
+		{
+			static_assert(std::is_convertible<T, U>::value, "Can't convert to this type.");
+
+			return Vector<2, U>{static_cast<U>(x), static_cast<U>(y)};
+		}
+
+		[[nodiscard]] constexpr IteratorType begin() 
+		{ 
+			return IteratorType::Begin(*this);
+		}
+		[[nodiscard]] constexpr ConstIteratorType cbegin() const
+		{
+			return ConstIteratorType::Begin(*this);
+		}
+		[[nodiscard]] constexpr IteratorType rbegin() 
+		{
+			return IteratorType::ReverseBegin(*this);;
+		}
+		[[nodiscard]] constexpr ConstIteratorType crbegin() const
+		{
+			return ConstIteratorType::ReverseBegin(*this);
+		}
+		[[nodiscard]] constexpr IteratorType end() 
+		{
+			return IteratorType::End(*this);
+		}
+		[[nodiscard]] constexpr ConstIteratorType cend() const
+		{
+			return ConstIteratorType::End(*this);
+		}
 	};
 
 	template<typename T>
-	constexpr Vector<2, T>& Vector<2, T>::operator+=(const Vector<2, T>& input)
+	constexpr Vector<2, T> operator*(const Vector<2, T>& lhs, const T& rhs)
 	{
-		for (size_t i = 0; i < 2; i++)
-			(*this)[i] += input[i];
-		return *this;
+		return Vector<2, T>{ lhs.x * rhs, lhs.y * rhs };
 	}
 
 	template<typename T>
-	constexpr Vector<2, T>& Vector<2, T>::operator-=(const Vector<2, T>& input)
+	constexpr Vector<2, T> operator*(const T& lhs, const Vector<2, T>& rhs)
 	{
-		for (size_t i = 0; i < 2; i++)
-			(*this)[i] -= input[i];
-		return *this;
+		return Vector<2, T>{ lhs * rhs.x, lhs * rhs.y };
 	}
-
-	template<typename T>
-	constexpr Vector<2, T>& Vector<2, T>::operator*=(const T& input)
-	{
-		for (auto& item : (*this))
-			item *= input;
-		return *this;
-	}
-
-	template<typename T>
-	template<Math::AngleUnit angleUnit>
-	Math::Vector<2, T> Vector<2, T>::GetRotated(float degrees) const
-	{
-		const float cos = Cos<angleUnit>(degrees);
-		const float sin = Sin<angleUnit>(degrees);
-		return { this->x*cos - this->y*sin, this->x*sin + this->y*cos };
-	}
-
-	template<typename T>
-	inline constexpr void Vector<2, T>::Rotate(float counterClockwise)
-	{
-		const T originalX = this->x;
-		if (counterClockwise)
-		{
-			this->x = -this->y;
-			this->y = originalX;
-		}
-		else
-		{
-			this->x = this->y;
-			this->y = -originalX;
-		}
-	}
-
-	template<typename T>
-	inline constexpr Math::Vector<2, T> Vector<2, T>::GetRotated(bool counterClockwise) const { return counterClockwise ? Math::Vector<2, T>{ -this->y, this->x} : Math::Vector<2, T>{ this->y, -this->x }; }
-
-	template<typename T>
-	constexpr Math::Vector<3, T> Vector<2, T>::AsVec3(const T& zValue) const { return Math::Vector<3, T>{ this->x, this->y, zValue }; }
-
-	template<typename T>
-	constexpr Vector<2, T> Vector<2, T>::Up() { return { 0, 1 }; }
-
-	template<typename T>
-	constexpr Vector<2, T> Vector<2, T>::Down() { return { 0, -1 }; }
-
-	template<typename T>
-	constexpr Vector<2, T> Vector<2, T>::Left() { return { -1, 0 }; }
-
-	template<typename T>
-	constexpr Vector<2, T> Vector<2, T>::Right() { return { 1, 0 }; }
 }

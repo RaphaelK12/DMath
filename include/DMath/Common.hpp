@@ -79,14 +79,22 @@ namespace Math
 		return std::floor(input);
 	}
 
-	template<typename T>
-	[[nodiscard]] auto Hypot(T x, T y)
+	[[nodiscard]] inline float Hypot(float x, float y)
 	{
-		return std::hypot(x, y);
+		return hypotf(x, y);
 	}
 
-	template<typename T>
-	[[nodiscard]] auto Hypot(T x, T y, T z)
+	[[nodiscard]] inline double Hypot(float x, float y, float z)
+	{
+		return std::hypot(x, y, z);
+	}
+
+	[[nodiscard]] inline double Hypot(double x, double y)
+	{
+		return hypotl(x, y);
+	}
+
+	[[nodiscard]] inline double Hypot(double x, double y, double z)
 	{
 		return std::hypot(x, y, z);
 	}
@@ -108,20 +116,18 @@ namespace Math
 		return std::log(in);
 	}
 
-	template<typename T, typename U>
-	[[nodiscard]] constexpr auto Min(T a, U b) -> std::common_type_t<T, U>
+	template<typename T>
+	[[nodiscard]] constexpr T Min(T a, T b)
 	{
-		static_assert(std::is_arithmetic_v<T> && std::is_arithmetic_v<U>, "Error. Arguments of " __FUNCTION__ " must be arithmetic types.");
-		using CommonType = typename std::common_type_t<T, U>;
-		return std::min(static_cast<CommonType>(a), static_cast<CommonType>(b));
+		static_assert(std::is_arithmetic<T>::value , "Error. Argument of " __FUNCTION__ " must be arithmetic types.");
+		return std::min(a, b);
 	}
 
-	template<typename T, typename U>
-	[[nodiscard]] constexpr auto Max(T a, U b) -> std::common_type_t<T, U>
+	template<typename T>
+	[[nodiscard]] constexpr auto Max(T a)
 	{
-		static_assert(std::is_arithmetic<T>() && std::is_arithmetic<U>(), "Error. Arguments of " __FUNCTION__ " must be arithmetic types.");
-		using CommonType = typename std::common_type_t<T, U>;
-		return std::max(static_cast<CommonType>(a), static_cast<CommonType>(b));
+		static_assert(std::is_arithmetic<T>::value, "Error. Argument of " __FUNCTION__ " must be arithmetic types.");
+		return std::max(a, b);
 	}
 
 	template<typename T1, typename T2>
@@ -145,11 +151,14 @@ namespace Math
 		return input * input;
 	}
 
-	template<typename T>
-	[[nodiscard]] auto Sqrt(T input)
+	[[nodiscard]] inline float Sqrt(float input)
 	{
-		static_assert(std::is_arithmetic_v<T>, "Input of Math::Sqrt must be of numeric type.");
-		return std::sqrt(input);
+		return sqrtf(input);
+	}
+
+	[[nodiscard]] inline double Sqrt(double input)
+	{
+		return sqrtl(input);
 	}
 
 	template<typename T>
