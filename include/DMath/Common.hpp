@@ -124,7 +124,7 @@ namespace Math
 	}
 
 	template<typename T>
-	[[nodiscard]] constexpr auto Max(T a)
+	[[nodiscard]] constexpr auto Max(T a, T b)
 	{
 		static_assert(std::is_arithmetic<T>::value, "Error. Argument of " __FUNCTION__ " must be arithmetic types.");
 		return std::max(a, b);

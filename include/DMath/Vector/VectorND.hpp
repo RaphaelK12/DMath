@@ -37,6 +37,16 @@ namespace Math
 				sum += lhs[i] * rhs[i];
 		}
 
+		[[nodiscard]] constexpr T* GetData()
+		{
+			return data.data();
+		}
+
+		[[nodiscard]] constexpr const T* GetData() const
+		{
+			return data.data();
+		}
+
 		[[nodiscard]] auto GetNormalized() const -> Vector<length, typename std::conditional<std::is_integral<T>::value, float, T>::type>
 		{
 			using ReturnValueType = typename std::conditional<std::is_integral<T>::value, float, T>::type;

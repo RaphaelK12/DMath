@@ -61,6 +61,16 @@ namespace Math
 			return (lhs.x * rhs.x) + (lhs.y * rhs.y);
 		}
 
+		[[nodiscard]] constexpr T* GetData()
+		{
+			return &x;
+		}
+
+		[[nodiscard]] constexpr const T* GetData() const
+		{
+			return &x;
+		}
+
 		[[nodiscard]] auto GetNormalized() const -> Vector<2, typename std::conditional<std::is_integral<T>::value, float, T>::type>
 		{
 			using ReturnValueType = typename std::conditional<std::is_integral<T>::value, float, T>::type;
