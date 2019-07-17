@@ -52,7 +52,7 @@ namespace Math
 		[[nodiscard]] constexpr T& At(size_t x, size_t y)
 		{
 #if defined( _MSC_VER )
-			__assume(i < width && i < height);
+			__assume(x < width && y < height);
 #endif
 			assert(x < width && y < height);
 			return data[x * height + y];
@@ -60,7 +60,7 @@ namespace Math
 		[[nodiscard]] constexpr const T& At(size_t x, size_t y) const
 		{
 #if defined( _MSC_VER )
-			__assume(i < width && i < height);
+			__assume(x < width && y < height);
 #endif
 			assert(x < width && y < height);
 			return data[x * height + y];

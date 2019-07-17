@@ -412,7 +412,7 @@ template<typename T>
 inline Math::Matrix<4, 4, T> Math::LinearTransform3D::Perspective(API3D api, T fovY, T aspectRatio, T zNear, T zFar)
 {
 #if defined( _MSC_VER )
-	__assume(api == API3D::OpenGL || api == API3D::Vulkan)
+	__assume(api == API3D::OpenGL || api == API3D::Vulkan);
 #endif
 	static_assert
 	(
@@ -475,7 +475,7 @@ template<typename T>
 [[nodiscard]] Math::Matrix<4, 4, T> Math::LinearTransform3D::Orthographic(API3D api, T left, T right, T bottom, T top, T zNear, T zFar)
 {
 #if defined( _MSC_VER )
-	__assume(api == API3D::OpenGL || api == API3D::Vulkan)
+	__assume(api == API3D::OpenGL || api == API3D::Vulkan);
 #endif
 
 	static_assert

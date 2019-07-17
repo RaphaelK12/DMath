@@ -53,7 +53,7 @@ namespace Math
 					return determinant;
 				}
 				else if constexpr (width == 2)
-					return data[0] * data[height + 1] - data[height] * data[1];
+					return data[0] * data[width + 1] - data[width] * data[1];
 				else if constexpr (width == 1)
 					return data[0];
 				else
@@ -62,7 +62,7 @@ namespace Math
 
 			[[nodiscard]] constexpr std::optional<Math::Matrix<width, width, T>> GetInverse() const
 			{
-				const Math::Matrix<width, width, T> adjugate = GetAdjugate();
+				Math::Matrix<width, width, T> adjugate = GetAdjugate();
 				T determinant = T();
 				for (size_t x = 0; x < width; x++)
 					determinant += data[x * width] * adjugate[0][x];
