@@ -146,7 +146,7 @@ namespace Math
 		}
 		[[nodiscard]] static constexpr Vector<3, T> Zero()
 		{
-			return Vector<3, T>{ T(0), T(0), T(0) };
+			return Vector<3, T>{ };
 		}
 		[[nodiscard]] static constexpr Vector<3, T> One()
 		{

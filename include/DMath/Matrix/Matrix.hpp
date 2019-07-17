@@ -31,280 +31,209 @@ namespace Math
 	{
 	public:
 		using ParentType = std::conditional_t<width == height, detail::MatrixBaseSquare<width, T>, detail::MatrixBase<width, height, T>>;
-		using LengthType = size_t;
 		using ValueType = T;
-		[[nodiscard]] static constexpr size_t GetWidth();
-		[[nodiscard]] static constexpr size_t GetHeight();
-		[[nodiscard]] static constexpr size_t GetLinearLength();
-		[[nodiscard]] static constexpr bool IsSquare();
 
-		[[nodiscard]] constexpr Matrix<height, width, T> GetTransposed() const;
+		[[nodiscard]] constexpr T& At(size_t i)
+		{
+			assert(i < width * height);
+			return data[i];
+		}
+		[[nodiscard]] constexpr const T& At(size_t i) const
+		{
+			assert(i < width * height);
+			return data[i];
+		}
+		[[nodiscard]] constexpr T& At(size_t x, size_t y)
+		{
+			assert(x < width && y < height);
+			return data[x * height + y];
+		}
+		[[nodiscard]] constexpr const T& At(size_t x, size_t y) const
+		{
+			assert(x < width && y < height);
+			return data[x * height + y];
+		}
 
-		constexpr void SwapRows(size_t row1, size_t row2);
-		constexpr void SwapColumns(size_t column1, size_t column2);
+		[[nodiscard]] constexpr Matrix<height, width, T> GetTransposed() const
+		{
+			Matrix<height, width, T> temp;
+			for (size_t x = 0; x < width; x++)
+			{
+				for (size_t y = 0; y < height; y++)
+					temp[x][y] = (*this)[y][x];
+			}
+			return temp;
+		}
 
-		[[nodiscard]] std::string ToString() const;
+		constexpr void SwapRows(size_t row1, size_t row2)
+		{
+			assert(row1 < height && row2 < height);
+			for (size_t x = 0; x < width; x++)
+				std::swap((*this)[x][row1], (*this)[x][row2]);
+		}
 
-		[[nodiscard]] static constexpr Matrix<width, height, T> SingleValue(const T& input);
-		[[nodiscard]] static constexpr Matrix<width, height, T> Zero();
-		[[nodiscard]] static constexpr Matrix<width, height, T> One();
+		constexpr void SwapColumns(size_t column1, size_t column2)
+		{
+			assert(column1 < width && column2 < width);
+			for (size_t y = 0; y < height; y++)
+				std::swap((*this)[column1][y], (*this)[column2][y]);
+		}
 
-		constexpr T& Front();
-		constexpr const T& Front() const;
-		constexpr T& Back();
-		constexpr const T& Back() const;
-		constexpr T* Data();
-		constexpr const T* Data() const;
+		[[nodiscard]] std::string ToString() const
+		{
+			std::stringstream stream;
+			if constexpr (std::is_floating_point<T>::value)
+			{
+				stream.precision(4);
+				stream.flags(std::ios::fixed);
+			}
 
-		template<typename U>
-		[[nodiscard]] constexpr auto operator+(const Matrix<width, height, U>& right) const;
-		template<typename U>
-		constexpr Matrix<width, height, T>& operator+=(const Matrix<width, height, U>& right);
-		template<typename U>
-		[[nodiscard]] constexpr auto operator-(const Matrix<width, height, U>& right) const;
-		template<typename U>
-		constexpr Matrix<width, height, T>& operator-=(const Matrix<width, height, U>& right);
-		[[nodiscard]] constexpr auto operator-() const;
-		template<size_t widthB, typename U>
-		[[nodiscard]] constexpr auto operator*(const Matrix<widthB, width, U>& right) const;
-		template<typename U>
-		[[nodiscard]] constexpr auto operator*(const Vector<width, U>& right) const;
-		constexpr Matrix<width, height, T>& operator*=(const T& right);
-		template<typename U>
-		[[nodiscard]] constexpr bool operator==(const Matrix<width, height, U>& right) const;
-		template<typename U>
-		[[nodiscard]] constexpr bool operator!=(const Matrix<width, height, U>& right) const;
+			for (size_t y = 0; y < height; y++)
+			{
+				for (size_t x = 0; x < width; x++)
+				{
+					if constexpr (std::is_same<char, T>() || std::is_same<unsigned char, T>())
+						stream << +(*this)[x][y];
+					else
+						stream << (*this)[x][y];
+					if (x < width - 1)
+						stream << ", ";
+				}
+				if (y < height - 1)
+					stream << std::endl;
+			}
+			return stream.str();
+		}
+
+		[[nodiscard]] static constexpr Matrix<width, height, T> SingleValue(const T& input)
+		{
+			Matrix<width, height, T> returnMatrix;
+			for (size_t i = 0; i < width * height; i++)
+				returnMatrix.data[i] = input;
+			return returnMatrix;
+		}
+		[[nodiscard]] static constexpr Matrix<width, height, T> Zero() 
+		{
+			return Matrix<width, height, T>{};
+		}
+		[[nodiscard]] static constexpr Matrix<width, height, T> One() 
+		{ 
+			Matrix<width, height, T> returnMatrix;
+			for (size_t i = 0; i < width * height; i++)
+				returnMatrix.data[i] = T(1);
+			return returnMatrix;
+		}
+
+		[[nodiscard]] constexpr Matrix<width, height, T> operator+(const Matrix<width, height, T>& rhs) const
+		{
+			Matrix<width, height, T> newMatrix;
+			for (size_t i = 0; i < width * height; i++)
+				newMatrix.data[i] = data[i] + rhs.data[i];
+			return newMatrix;
+		}
+		constexpr Matrix<width, height, T>& operator+=(const Matrix<width, height, T>& rhs)
+		{
+			for (size_t i = 0; i < width * height; i++)
+				data[i] += rhs.data[i];
+			return *this;
+		}
+		[[nodiscard]] constexpr Matrix<width, height, T> operator-(const Matrix<width, height, T>& rhs) const
+		{
+			Matrix<width, height, T> newMatrix;
+			for (size_t i = 0; i < width * height; i++)
+				newMatrix.data[i] = data[i] - rhs.data[i];
+			return newMatrix;
+		}
+		constexpr Matrix<width, height, T>& operator-=(const Matrix<width, height, T>& rhs)
+		{
+			for (size_t i = 0; i < width * height; i++)
+				data[i] -= rhs.data[i];
+			return *this;
+		}
+		[[nodiscard]] constexpr Matrix<width, height, T> operator-() const
+		{
+			Matrix<width, height, T> newMatrix;
+			for (size_t i = 0; i < width * height; i++)
+				newMatrix.data[i] = -data[i];
+			return newMatrix;
+		}
+		template<size_t widthB>
+		[[nodiscard]] constexpr Matrix<widthB, height, T> operator*(const Matrix<widthB, width, T>& right) const
+		{
+			Matrix<widthB, height, T> newMatrix{};
+			for (size_t x = 0; x < widthB; x++)
+			{
+				for (size_t y = 0; y < height; y++)
+				{
+					T dot{};
+					for (size_t i = 0; i < width; i++)
+						dot += (*this)[i][y] * right[x][i];
+					newMatrix[x][y] = dot;
+				}
+			}
+			return newMatrix;
+		}
+		[[nodiscard]] constexpr Vector<height, T> operator*(const Vector<width, T>& right) const
+		{
+			Vector<height, T> newVector;
+			for (size_t y = 0; y < height; y++)
+			{
+				T dot{};
+				for (size_t i = 0; i < width; i++)
+					dot += (*this)[i][y] * right[i];
+				newVector[y] = dot;
+			}
+			return newVector;
+		}
+		constexpr Matrix<width, height, T>& operator*=(const T& right)
+		{
+			for (size_t i = 0; i < width * height; i++)
+				data[i] *= right;
+			return *this;
+		}
+		[[nodiscard]] constexpr bool operator==(const Matrix<width, height, T>& right) const
+		{
+			for (size_t i = 0; i < width * height; i++)
+			{
+				if (data[i] != right.data[i])
+					return false;
+			}
+			return true;
+		}
+		[[nodiscard]] constexpr bool operator!=(const Matrix<width, height, T>& right) const
+		{
+			for (size_t i = 0; i < width * height; i++)
+			{
+				if (data[i] != right.data[i])
+					return true;
+			}
+			return false;
+		}
+		[[nodiscard]] constexpr T* operator[](size_t index)
+		{
+			return data.data() + (index * height);
+		}
+		[[nodiscard]] constexpr const T* operator[](size_t index) const
+		{
+			return data.data() + (index * height);
+		}
 	};
 
 	template<size_t width, size_t height, typename T>
-	constexpr size_t Matrix<width, height, T>::GetWidth() { return width; }
-
-	template<size_t width, size_t height, typename T>
-	constexpr size_t Matrix<width, height, T>::GetHeight() { return height; }
-
-	template<size_t width, size_t height, typename T>
-	constexpr size_t Matrix<width, height, T>::GetLinearLength() { return width * height; }
-
-	template<size_t width, size_t height, typename T>
-	constexpr bool Matrix<width, height, T>::IsSquare() { return width == height; }
-
-	template<size_t width, size_t height, typename T>
-	constexpr Matrix<height, width, T> Matrix<width, height, T>::GetTransposed() const
+	[[nodiscard]] constexpr auto operator*(const Matrix<width, height, T>& lhs, const T& rhs)
 	{
-		Matrix<height, width, T> temp{};
-		for (size_t x = 0; x < width; x++)
-		{
-			for (size_t y = 0; y < height; y++)
-				temp[x][y] = (*this)[y][x];
-		}
-		return temp;
-	}
-
-	template<size_t width, size_t height, typename T>
-	constexpr void Matrix<width, height, T>::SwapRows(size_t row1, size_t row2)
-	{
-		for (size_t x = 0; x < width; x++)
-			std::swap((*this)[x][row1], (*this)[x][row2]);
-	}
-
-	template<size_t width, size_t height, typename T>
-	constexpr void Matrix<width, height, T>::SwapColumns(size_t column1, size_t column2)
-	{
-		for (size_t y = 0; y < height; y++)
-			std::swap((*this)[column1][y], (*this)[column2][y]);
-	}
-
-	template<size_t width, size_t height, typename T>
-	std::string Matrix<width, height, T>::ToString() const
-	{
-		std::stringstream stream;
-		stream.precision(4);
-		stream.flags(std::ios::fixed);
-		for (size_t y = 0; y < height; y++)
-		{
-			for (size_t x = 0; x < width; x++)
-			{
-				if constexpr (std::is_same<char, T>() || std::is_same<unsigned char, T>())
-					stream << +(*this)[x][y];
-				else
-					stream << (*this)[x][y];
-				if (x < width - 1)
-					stream << ", ";
-			}
-			if (y < height - 1)
-				stream << std::endl;
-		}
-		return stream.str();
-	}
-
-	template<size_t width, size_t height, typename T>
-	constexpr Matrix<width, height, T> Matrix<width, height, T>::SingleValue(const T& input)
-	{
-		Matrix<width, height, T> returnMatrix{};
-		for (auto& item : returnMatrix)
-			item = input;
-		return returnMatrix;
-	}
-
-	template<size_t width, size_t height, typename T>
-	constexpr Matrix<width, height, T> Matrix<width, height, T>::Zero() { return Matrix<width, height, T>::SingleValue(T()); }
-
-	template<size_t width, size_t height, typename T>
-	constexpr Matrix<width, height, T> Matrix<width, height, T>::One() { return Matrix<width, height, T>::SingleValue(T(1)); }
-
-	template<size_t width, size_t height, typename T>
-	constexpr T& Matrix<width, height, T>::Front() { return this->data.front(); }
-
-	template<size_t width, size_t height, typename T>
-	constexpr const T & Matrix<width, height, T>::Front() const { return this->data.front(); }
-
-	template<size_t width, size_t height, typename T>
-	constexpr T& Matrix<width, height, T>::Back() { return this->data.back(); }
-
-	template<size_t width, size_t height, typename T>
-	constexpr const T& Matrix<width, height, T>::Back() const { return this->data.back(); }
-
-	template<size_t width, size_t height, typename T>
-	constexpr T* Matrix<width, height, T>::Data() { return this->data.data(); }
-
-	template<size_t width, size_t height, typename T>
-	constexpr const T* Matrix<width, height, T>::Data() const { return this->data.data(); }
-
-	template<size_t width, size_t height, typename T>
-	template<typename U>
-	constexpr auto Matrix<width, height, T>::operator+(const Matrix<width, height, U>& right) const
-	{
-		using ReturnType = decltype(this->At(0) + right.At(0));
-		Matrix<width, height, ReturnType> newMatrix{};
+		Matrix<width, height, T> newMatrix;
 		for (size_t i = 0; i < width * height; i++)
-			newMatrix.At(i) = this->At(i) + right.At(i);
-		return newMatrix;
-	}
-
-	template<size_t width, size_t height, typename T>
-	template<typename U>
-	constexpr Matrix<width, height, T>& Matrix<width, height, T>::operator+=(const Matrix<width, height, U>& right)
-	{
-		for (size_t i = 0; i < width * height; i++)
-			this->At(i) += right.At(i);
-		return *this;
-	}
-
-	template<size_t width, size_t height, typename T>
-	template<typename U>
-	constexpr auto Matrix<width, height, T>::operator-(const Matrix<width, height, U>& right) const
-	{
-		using ReturnType = decltype(this->At(0) - right.At(0));
-		Matrix<width, height, ReturnType> newMatrix{};
-		for (size_t i = 0; i < width * height; i++)
-			newMatrix.At(i) = this->At(i) - right.At(i);
-		return newMatrix;
-	}
-
-	template<size_t width, size_t height, typename T>
-	template<typename T2>
-	constexpr Matrix<width, height, T>& Matrix<width, height, T>::operator-=(const Matrix<width, height, T2>& right)
-	{
-		for (size_t i = 0; i < width * height; i++)
-			this->At(i) -= right.At(i);
-		return *this;
-	}
-
-	template<size_t width, size_t height, typename T>
-	constexpr auto Matrix<width, height, T>::operator-() const
-	{
-		constexpr bool unsignedTest = std::is_unsigned_v<T>;
-		using ReturnType = std::conditional_t<unsignedTest, std::make_signed_t<T>, T>;
-		Matrix<width, height, ReturnType> newMatrix{};
-		for (size_t i = 0; i < width * height; i++)
-		{
-			if constexpr (unsignedTest)
-				newMatrix.At(i) = -static_cast<ReturnType>(this->At(i));
-			else
-				newMatrix.At(i) = -this->At(i);
-		}
-		return newMatrix;
-	}
-
-	template<size_t width, size_t height, typename T>
-	template<size_t widthB, typename U>
-	constexpr auto Matrix<width, height, T>::operator*(const Matrix<widthB, width, U>& right) const
-	{
-		using ReturnType = std::common_type_t<T, U>;
-		Matrix<widthB, height, ReturnType> newMatrix{};
-		for (size_t x = 0; x < widthB; x++)
-		{
-			for (size_t y = 0; y < height; y++)
-			{
-				ReturnType dot{};
-				for (size_t i = 0; i < width; i++)
-					dot += (*this)[i][y] * right[x][i];
-				newMatrix[x][y] = dot;
-			}
-		}
-		return newMatrix;
-	}
-
-	template<size_t width, size_t height, typename T>
-	template<typename U>
-	constexpr auto Matrix<width, height, T>::operator*(const Vector<width, U>& right) const
-	{
-		using ReturnType = std::common_type_t<T, U>;
-		Vector<height, ReturnType> newVector;
-		for (size_t y = 0; y < height; y++)
-		{
-			ReturnType dot{};
-			for (size_t i = 0; i < width; i++)
-				dot += (*this)[i][y] * right[i];
-			newVector[y] = dot;
-		}
-		return newVector;
-	}
-
-	template<size_t width, size_t height, typename T>
-	[[nodiscard]] constexpr auto operator*(const Matrix<width, height, T>& left, const T& right)
-	{
-		using ReturnType = decltype(left.At(0) * right);
-		Matrix<width, height, ReturnType> newMatrix;
-		for (size_t i = 0; i < width * height; i++)
-			newMatrix.At(i) = left.At(i) * right;
+			newMatrix.data[i] = lhs.data[i] * rhs;
 		return newMatrix;
 	}
 
 	template<size_t width, size_t height, typename T>
 	[[nodiscard]] constexpr auto operator*(const T& left, const Matrix<width, height, T>& right)
 	{
-		using ReturnType = decltype(left * right.At(0));
-		Matrix<width, height, ReturnType> newMatrix{};
+		Matrix<width, height, T> newMatrix;
 		for (size_t i = 0; i < width * height; i++)
-			newMatrix.At(i) = left * right.At(i);
+			newMatrix.data[i] = left * right.data[i];
 		return newMatrix;
-	}
-
-	template<size_t width, size_t height, typename T>
-	constexpr Matrix<width, height, T>& Matrix<width, height, T>::operator*=(const T& right)
-	{
-		for (auto& item : *this)
-			item *= right;
-		return *this;
-	}
-
-	template<size_t width, size_t height, typename T>
-	template<typename T2>
-	constexpr bool Matrix<width, height, T>::operator==(const Matrix<width, height, T2>& right) const
-	{
-		for (size_t i = 0; i < width * height; i++)
-		{
-			if (this->At(i) != right.At(i))
-				return false;
-		}
-		return true;
-	}
-
-	template<size_t width, size_t height, typename T>
-	template<typename T2>
-	constexpr bool Matrix<width, height, T>::operator!=(const Matrix<width, height, T2>& right) const
-	{
-		return !((*this) == right);
 	}
 }

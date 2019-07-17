@@ -53,7 +53,7 @@ namespace Math
 			const auto& magnitude = Magnitude();
 			Vector<length, ReturnValueType> temp;
 			for (size_t i = 0; i < length; i++)
-				temp[i] = (*this)[i] / magnitude;
+				temp[i] = data[i] / magnitude;
 			return temp;
 		}
 
@@ -64,7 +64,7 @@ namespace Math
 				T sumSqrd = T(0);
 				for (size_t i = 0; i < length; i++)
 				{
-					const T& temp = (*this)[i];
+					const T& temp = data[i];
 					sumSqrd = temp * temp;
 				}
 				return Sqrt(float(sumSqrd));
@@ -74,7 +74,7 @@ namespace Math
 				T sumSqrd = T(0);
 				for (size_t i = 0; i < length; i++)
 				{
-					const T& temp = (*this)[i];
+					const T& temp = data[i];
 					sumSqrd = temp * temp;
 				}
 				return Sqrt(sumSqrd);
@@ -86,7 +86,7 @@ namespace Math
 			T sumSqrd = T(0);
 			for (size_t i = 0; i < length; i++)
 			{
-				const T& temp = (*this)[i];
+				const T& temp = data[i];
 				sumSqrd = temp * temp;
 			}
 			return sumSqrd;
@@ -97,7 +97,7 @@ namespace Math
 			static_assert(std::is_floating_point<T>::value, "Cannot normalize an integral vector.");
 			const auto& magnitude = Magnitude();
 			for (size_t i = 0; i < length; i++)
-				(*this)[i] /= magnitude;
+				data[i] /= magnitude;
 		}
 
 		[[nodiscard]] std::string ToString() const
@@ -114,9 +114,9 @@ namespace Math
 			for (size_t i = 0; i < length; i++)
 			{
 				if constexpr (std::is_same<char, T>::value || std::is_same<unsigned char, T>::value)
-					stream << +(*this)[i];
+					stream << +data[i];
 				else
-					stream << (*this)[i];
+					stream << data[i];
 
 				if (i < length - 1)
 					stream << ", ";
@@ -129,68 +129,65 @@ namespace Math
 		{
 			Vector<length, T> temp;
 			for (size_t i = 0; i < length; i++)
-				(*this)[i] = input;
+				data[i] = input;
 			return temp;
 		}
 		[[nodiscard]] static constexpr Vector<length, T> Zero()
 		{
-			Vector<length, T> temp;
-			for (size_t i = 0; i < length; i++)
-				(*this)[i] = T(0);
-			return temp;
+			return Vector<length, T>{};
 		}
 		[[nodiscard]] static constexpr Vector<length, T> One()
 		{
 			Vector<length, T> temp;
 			for (size_t i = 0; i < length; i++)
-				(*this)[i] = T(1);
+				data[i] = T(1);
 			return temp;
 		}
 
 		constexpr Vector<length, T>& operator+=(const Vector<length, T>& rhs)
 		{
 			for (size_t i = 0; i < length; i++)
-				(*this)[i] += rhs[i];
+				data[i] += rhs[i];
 			return *this;
 		}
 		constexpr Vector<4, T>& operator-=(const Vector<4, T>& rhs)
 		{
 			for (size_t i = 0; i < length; i++)
-				(*this)[i] -= rhs[i];
+				data[i] -= rhs[i];
 			return *this;
 		}
 		constexpr Vector<4, T>& operator*=(const T& rhs)
 		{
 			for (size_t i = 0; i < length; i++)
-				(*this)[i] *= rhs;
+				data[i] *= rhs;
 			return *this;
 		}
 		[[nodiscard]] constexpr Vector<length, T> operator+(const Vector<length, T>& rhs) const
 		{
 			Vector<length, T> returnValue;
 			for (size_t i = 0; i < length; i++)
-				returnValue[i] = (*this)[i] + rhs[i];
+				returnValue[i] = data[i] + rhs[i];
 			return returnValue;
 		}
 		[[nodiscard]] constexpr Vector<length, T> operator-(const Vector<length, T>& rhs) const
 		{
 			Vector<length, T> returnValue;
 			for (size_t i = 0; i < length; i++)
-				returnValue[i] = (*this)[i] - rhs[i];
+				returnValue[i] = data[i] - rhs[i];
 			return returnValue;
 		}
 		[[nodiscard]] constexpr Vector<length, T> operator-() const
 		{
 			Vector<length, T> returnValue;
 			for (size_t i = 0; i < length; i++)
-				returnValue[i] = -(*this)[i];
+				returnValue[i] = -data[i];
 			return returnValue;
 		}
 		[[nodiscard]] constexpr bool operator==(const Vector<length, T>& rhs) const
 		{
 			for (size_t i = 0; i < length; i++)
 			{
-				if ((*this)[i] != rhs[i])
+				if (data[i] != rhs[i])
 					return false;
 			}
 			return true;
@@ -199,7 +196,7 @@ namespace Math
 		{
 			for (size_t i = 0; i < length; i++)
 			{
-				if ((*this)[i] != rhs[i])
+				if (data[i] != rhs[i])
 					return true;
 			}
 			return false;
@@ -220,7 +217,7 @@ namespace Math
 			
 			Vector<length, U> returnValue;
 			for (size_t i = 0; i < length; i++)
-				returnValue[i] = static_cast<U>((*this)[i]);
+				returnValue[i] = static_cast<U>(data[i]);
 			return returnValue;
 		}
 	};
@@ -230,7 +227,7 @@ namespace Math
 	{
 		Vector<length, T> returnValue;
 		for (size_t i = 0; i < length; i++)
-			returnValue[i] = lhs[i] * rhs;
+			returnValue[i] = lhs.data[i] * rhs;
 		return returnValue;
 	}
 
@@ -239,7 +236,7 @@ namespace Math
 	{
 		Vector<length, T> returnValue;
 		for (size_t i = 0; i < length; i++)
-			returnValue[i] = lhs * rhs[i];
+			returnValue[i] = lhs * rhs.data[i];
 		return returnValue;
 	}
 }

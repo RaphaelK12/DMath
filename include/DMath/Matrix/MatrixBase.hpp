@@ -20,88 +20,30 @@ namespace Math
 		struct MatrixBase
 		{
 		public:
-			static constexpr bool IsColumnMajor();
+			static constexpr bool isColumnMajor = true;
 
-			std::array<T, width * height> data = {};
+			std::array<T, width * height> data;
 
-			[[nodiscard]] constexpr T& At(size_t x, size_t y);
-			[[nodiscard]] constexpr const T& At(size_t x, size_t y) const;
-			[[nodiscard]] constexpr T& At(size_t i);
-			[[nodiscard]] constexpr const T& At(size_t i) const;
-
-			[[nodiscard]] constexpr Math::Matrix<width - 1, height - 1, T> GetMinor(size_t columnIndexToSlice, size_t rowIndexToSlice) const;
-
-			[[nodiscard]] constexpr T* operator[](size_t index);
-			[[nodiscard]] constexpr const T* operator[](size_t index) const;
-
-			[[nodiscard]] constexpr auto begin() noexcept;
-			[[nodiscard]] constexpr auto begin() const noexcept;
-			[[nodiscard]] constexpr auto end() noexcept;
-			[[nodiscard]] constexpr auto end() const noexcept;
-		};
-
-		template<size_t width, size_t height, typename T>
-		constexpr bool MatrixBase<width, height, T>::IsColumnMajor() { return true; }
-
-		template<size_t width, size_t height, typename T>
-		constexpr T& MatrixBase<width, height, T>::At(size_t x, size_t y) { return const_cast<T&>(std::as_const(*this).At(x, y)); }
-
-		template<size_t width, size_t height, typename T>
-		constexpr const T& MatrixBase<width, height, T>::At(size_t x, size_t y) const 
-		{ 
-			if constexpr (IsColumnMajor())
-				return data.at(x * height + y);
-			else
-				return data.at(y * width + x);
-		}
-
-		template<size_t width, size_t height, typename T>
-		constexpr T& MatrixBase<width, height, T>::At(size_t i) { return const_cast<T&>(std::as_const(*this).At(i)); }
-
-		template<size_t width, size_t height, typename T>
-		constexpr const T& MatrixBase<width, height, T>::At(size_t i) const
-		{
-			return data.at(i);
-		}
-
-		template<size_t width, size_t height, typename T>
-		constexpr Math::Matrix<width - 1, height - 1, T> MatrixBase<width, height, T>::GetMinor(size_t columnIndexToSlice, size_t rowIndexToSlice) const
-		{
-			assert(columnIndexToSlice < width && rowIndexToSlice < height);
-
-			Math::Matrix<width - 1, height - 1, T> newMatrix;
-			for (size_t x = 0; x < width; x++)
+			[[nodiscard]] constexpr Math::Matrix<width - 1, height - 1, T> GetMinor(size_t columnIndexToSlice, size_t rowIndexToSlice) const
 			{
-				if (x == columnIndexToSlice)
-					continue;
+				assert(columnIndexToSlice < width && rowIndexToSlice < height);
 
-				for (size_t y = 0; y < height; y++)
+				Math::Matrix<width - 1, height - 1, T> newMatrix;
+				for (size_t x = 0; x < width; x++)
 				{
-					if (y == rowIndexToSlice)
+					if (x == columnIndexToSlice)
 						continue;
 
-					newMatrix[x < columnIndexToSlice ? x : x - 1][y < rowIndexToSlice ? y : y - 1] = (*this)[x][y];
+					for (size_t y = 0; y < height; y++)
+					{
+						if (y == rowIndexToSlice)
+							continue;
+
+						newMatrix[x < columnIndexToSlice ? x : x - 1][y < rowIndexToSlice ? y : y - 1] = data[x * height + y];
+					}
 				}
+				return newMatrix;
 			}
-			return newMatrix;
-		}
-
-		template<size_t width, size_t height, typename T>
-		constexpr T* MatrixBase<width, height, T>::operator[](size_t index) { return data.data() + index * height; }
-
-		template<size_t width, size_t height, typename T>
-		constexpr const T* MatrixBase<width, height, T>::operator[](size_t index) const { return data.data() + index * height; }
-
-		template<size_t width, size_t height, typename T>
-		constexpr auto MatrixBase<width, height, T>::begin() noexcept { return data.begin(); }
-
-		template<size_t width, size_t height, typename T>
-		constexpr auto MatrixBase<width, height, T>::begin() const noexcept { return data.begin(); }
-
-		template<size_t width, size_t height, typename T>
-		constexpr auto MatrixBase<width, height, T>::end() noexcept { return data.end(); }
-
-		template<size_t width, size_t height, typename T>
-		constexpr auto MatrixBase<width, height, T>::end() const noexcept { return data.end(); }
+		};
 	}
 }

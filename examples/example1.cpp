@@ -1,4 +1,5 @@
 #include "DMath/Vector/Vector.hpp"
+#include "DMath/Matrix/Matrix.hpp"
 
 #include <chrono>
 #include <iostream>
@@ -10,6 +11,12 @@ int main()
 	const Math::Vector<2, int> b{ 5, 6 };
 
 	const Math::Vector<3, float> c;
+
+	Math::Matrix4x4 d;
+
+	Math::Matrix4x4 e;
+
+	auto f = d + e;
 
 	for (auto i = a.crbegin(); i != a.cend(); i--)
 	{

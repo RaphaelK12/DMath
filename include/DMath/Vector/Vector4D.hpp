@@ -125,7 +125,7 @@ namespace Math
 		}
 		[[nodiscard]] static constexpr Vector<4, T> Zero()
 		{
-			return Vector<4, T>{ T(0), T(0), T(0), T(0) };
+			return Vector<4, T>{ };
 		}
 		[[nodiscard]] static constexpr Vector<4, T> One()
 		{

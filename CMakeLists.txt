@@ -20,7 +20,7 @@ target_include_directories(
 )
 
 # Compile example
-#set(COMPILE_EXAMPLES 1)
+set(COMPILE_EXAMPLES 1)
 if (${COMPILE_EXAMPLES})
 	set(EXAMPLE1_NAME "Example")
 	add_executable(${EXAMPLE1_NAME} "examples/example1.cpp" "examples/yo.cpp")
