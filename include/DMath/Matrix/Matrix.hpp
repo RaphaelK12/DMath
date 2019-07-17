@@ -66,6 +66,23 @@ namespace Math
 			return data[x * height + y];
 		}
 
+		[[nodiscard]] constexpr T& Back()
+		{
+			return data.back();
+		}
+		[[nodiscard]] constexpr const T& Back() const
+		{
+			return data.back();
+		}
+		[[nodiscard]] constexpr T* GetData()
+		{
+			return data.data();
+		}
+		[[nodiscard]] constexpr const T* GetData() const
+		{
+			return data.data();
+		}
+
 		[[nodiscard]] constexpr Matrix<height, width, T> GetTransposed() const
 		{
 			Matrix<height, width, T> temp;

@@ -51,12 +51,12 @@ namespace Math
 
 constexpr Math::Matrix<3, 2> Math::LinearTransform2D::Multiply_Reduced(const Matrix<3, 2>& left, const Matrix<3, 2>& right)
 {
-	Math::Matrix<3, 2> newMatrix;
+	Matrix<3, 2> newMatrix;
 	for (size_t x = 0; x < 2; x++)
 	{
 		for (size_t y = 0; y < 2; y++)
 		{
-			Math::Matrix<3, 2>::ValueType dot{};
+			Matrix<3, 2>::ValueType dot{};
 			for (size_t i = 0; i < 2; i++)
 				dot += left[i][y] * right[x][i];
 			newMatrix[x][y] = dot;
@@ -65,7 +65,7 @@ constexpr Math::Matrix<3, 2> Math::LinearTransform2D::Multiply_Reduced(const Mat
 
 	for (size_t y = 0; y < 2; y++)
 	{
-		Math::Matrix<3, 2>::ValueType dot{};
+		Matrix<3, 2>::ValueType dot{};
 		for (size_t i = 0; i < 2; i++)
 			dot += left[i][y] * right[2][i];
 		dot += left[2][y];
