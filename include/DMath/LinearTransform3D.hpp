@@ -79,7 +79,7 @@ namespace Math
 
 constexpr Math::Matrix<4, 3> Math::LinearTransform3D::Multiply_Reduced(const Matrix<4, 3>& left, const Matrix<4, 3>& right)
 {
-	Math::Matrix<4, 3> newMatrix{};
+	Math::Matrix<4, 3> newMatrix;
 	for (size_t x = 0; x < 3; x++)
 	{
 		for (size_t y = 0; y < 3; y++)
@@ -106,11 +106,11 @@ constexpr Math::Matrix<4, 3> Math::LinearTransform3D::Multiply_Reduced(const Mat
 template<typename T>
 [[nodiscard]] constexpr Math::Vector<3, T> Math::LinearTransform3D::Multiply_Reduced(const Matrix<4, 3, T>& left, const Vector<3, T>& right)
 {
-	Math::Vector<3, T> newVector{};
+	Math::Vector<3, T> newVector;
 
 	for (size_t y = 0; y < 3; y++)
 	{
-		T dot{};
+		T dot = T(0);
 		for (size_t i = 0; i < 3; i++)
 			dot += left[i][y] * right[i];
 		newVector[y] = dot + left[3][y];
@@ -121,12 +121,12 @@ template<typename T>
 
 constexpr Math::Matrix4x4 Math::LinearTransform3D::AsMat4(const Math::Matrix<4, 3>& input)
 {
-	Matrix4x4 newMat{};
+	Matrix4x4 newMat;
 
 	for (size_t x = 0; x < 4; x++)
 	{
 		for (size_t y = 0; y < 3; y++)
-			newMat.At(x, y) = input.At(x, y);
+			newMat[x][y] = input[x][y];
 	}
 
 	newMat.Back() = 1;
@@ -205,6 +205,9 @@ constexpr Math::Vector<3, T> Math::LinearTransform3D::GetTranslation(const Matri
 template<Math::AngleUnit angleUnit>
 Math::Matrix4x4 Math::LinearTransform3D::Rotate_Homo(ElementaryAxis axis, float amount)
 {
+#if defined( _MSC_VER )
+	__assume(axis == Math::ElementaryAxis::X || axis == Math::ElementaryAxis::Y || axis == Math::ElementaryAxis::Z);
+#endif
 	assert(axis == Math::ElementaryAxis::X || axis == Math::ElementaryAxis::Y || axis == Math::ElementaryAxis::Z);
 	const float cos = Cos<angleUnit>(amount);
 	const float sin = Sin<angleUnit>(amount);
@@ -226,7 +229,7 @@ Math::Matrix4x4 Math::LinearTransform3D::Rotate_Homo(ElementaryAxis axis, float 
 			sin, 0, cos, 0,
 			0, 0, 0, 1
 		});
-	default:
+	case ElementaryAxis::Z:
 		return Matrix4x4
 		({
 			cos, sin, 0, 0,
@@ -234,6 +237,12 @@ Math::Matrix4x4 Math::LinearTransform3D::Rotate_Homo(ElementaryAxis axis, float 
 			0, 0, 1, 0,
 			0, 0, 0, 1
 		});
+	default:
+#if defined( _MSC_VER )
+		__assume(0);
+#elif defined( __GNUC__ )
+		__builtin_unreachable();
+#endif
 	};
 }
 
@@ -281,12 +290,12 @@ template<typename T>
 
 constexpr Math::Matrix4x4 Math::LinearTransform3D::Rotate_Homo(const UnitQuaternion<>& quat)
 {
-	return static_cast<Math::Matrix4x4>(quat);
+	return static_cast<Matrix4x4>(quat);
 }
 
 constexpr Math::Matrix<4, 3> Math::LinearTransform3D::Rotate_Reduced(const UnitQuaternion<>& quat)
 {
-	return static_cast<Math::Matrix<4, 3>>(quat);
+	return static_cast<Matrix<4, 3>>(quat);
 }
 
 constexpr Math::Matrix3x3 Math::LinearTransform3D::Scale(float x, float y, float z)
@@ -402,6 +411,9 @@ inline Math::Matrix<4, 4, T> Math::LinearTransform3D::Perspective_RH_NO(T fovY, 
 template<typename T>
 inline Math::Matrix<4, 4, T> Math::LinearTransform3D::Perspective(API3D api, T fovY, T aspectRatio, T zNear, T zFar)
 {
+#if defined( _MSC_VER )
+	__assume(api == API3D::OpenGL || api == API3D::Vulkan)
+#endif
 	static_assert
 	(
 		std::is_floating_point<T>(),
@@ -415,8 +427,11 @@ inline Math::Matrix<4, 4, T> Math::LinearTransform3D::Perspective(API3D api, T f
 	case API3D::Vulkan:
 		return Perspective_RH_ZO<T>(fovY, aspectRatio, zNear, zFar);
 	default:
-		assert(false);
-		return {};
+#if defined( _MSC_VER )
+		__assume(0);
+#elif defined( __GNUC__ )
+		__builtin_unreachable();
+#endif
 	}
 }
 
@@ -459,6 +474,10 @@ Math::Matrix<4, 4, T> Math::LinearTransform3D::Orthographic_RH_NO(T left, T righ
 template<typename T>
 [[nodiscard]] Math::Matrix<4, 4, T> Math::LinearTransform3D::Orthographic(API3D api, T left, T right, T bottom, T top, T zNear, T zFar)
 {
+#if defined( _MSC_VER )
+	__assume(api == API3D::OpenGL || api == API3D::Vulkan)
+#endif
+
 	static_assert
 	(
 		std::is_floating_point<T>(),
@@ -472,7 +491,10 @@ template<typename T>
 	case API3D::Vulkan:
 		return Orthographic_RH_ZO<T>(left, right, bottom, top, zNear, zFar);
 	default:
-		assert(false);
-		return {};
+#if defined( _MSC_VER )
+		__assume(0);
+#elif defined( __GNUC__ )
+		__builtin_unreachable();
+#endif
 	}
 }

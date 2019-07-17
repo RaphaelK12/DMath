@@ -39,6 +39,9 @@ namespace Math
 
 		[[nodiscard]] constexpr const T& At(size_t index) const
 		{
+#if defined( _MSC_VER )
+			__assume(index < dimCount);
+#endif
 			assert(index < dimCount);
 			switch (index)
 			{
@@ -51,7 +54,11 @@ namespace Math
 			case 3:
 				return w;
 			default:
-				return *(T*)nullptr;
+#if defined( _MSC_VER )
+				__assume(0);
+#elif defined( __GNUC__ )
+				__builtin_unreachable();
+#endif
 			}
 		}
 
@@ -181,6 +188,9 @@ namespace Math
 		}
 		[[nodiscard]] constexpr const T& operator[](size_t index) const
 		{
+#if defined( _MSC_VER )
+			__assume(index < dimCount);
+#endif
 			assert(index < dimCount);
 			switch (index)
 			{
@@ -191,7 +201,11 @@ namespace Math
 			case 2:
 				return z;
 			default:
-				return *(T*)nullptr;
+#if defined( _MSC_VER )
+				__assume(0);
+#elif defined( __GNUC__ )
+				__builtin_unreachable();
+#endif
 			}
 		}
 		template<typename U>

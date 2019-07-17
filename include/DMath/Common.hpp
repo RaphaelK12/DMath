@@ -5,8 +5,8 @@
 
 #include <type_traits>
 
-#ifdef _MSC_VER
-#include <intrin.h>
+#if defined( _MSC_VER )
+#	include <intrin.h>
 #endif
 
 namespace Math
@@ -41,7 +41,7 @@ namespace Math
 		}
 	}
 
-	[[nodiscard]] inline auto CeilToNearestPowerOf2(uint16_t in) -> uint16_t
+	[[nodiscard]] inline uint16_t CeilToNearestPowerOf2(uint16_t in)
 	{
 		constexpr uint16_t bitSize = uint16_t(sizeof(uint16_t) * 8);
 #ifdef _MSC_VER
@@ -49,7 +49,7 @@ namespace Math
 #endif
 	}
 
-	[[nodiscard]] inline auto CeilToNearestPowerOf2(uint32_t in) -> uint32_t
+	[[nodiscard]] inline uint32_t CeilToNearestPowerOf2(uint32_t in)
 	{
 		constexpr uint32_t bitSize = uint32_t(sizeof(uint32_t) * 8);
 #ifdef _MSC_VER
@@ -57,7 +57,7 @@ namespace Math
 #endif
 	}
 
-	[[nodiscard]] inline auto CeilToNearestPowerOf2(uint64_t in) -> uint64_t
+	[[nodiscard]] inline uint64_t CeilToNearestPowerOf2(uint64_t in)
 	{
 		constexpr uint64_t bitSize = uint64_t(sizeof(uint64_t) * 8);
 #ifdef _MSC_VER

@@ -40,6 +40,9 @@ namespace Math
 
 		[[nodiscard]] constexpr const T& At(size_t index) const
 		{
+#if defined( _MSC_VER )
+			__assume(index < dimCount);
+#endif
 			assert(index < dimCount);
 			switch (index)
 			{
@@ -50,7 +53,11 @@ namespace Math
 			case 2:
 				return z;
 			default:
-				return *(T*)nullptr;
+#if defined( _MSC_VER )
+				__assume(0);
+#elif defined( __GNUC__ )
+				__builtin_unreachable();
+#endif
 			}
 		}
 
@@ -83,6 +90,9 @@ namespace Math
 
 		[[nodiscard]] Vector<3, T> GetRotated(ElementaryAxis axis, float degrees) const
 		{
+#if defined( _MSC_VER )
+			__assume(axis == ElementaryAxis::X || axis == ElementaryAxis::Y || axis == ElementaryAxis::Z);
+#endif
 			assert(axis == ElementaryAxis::X || axis == ElementaryAxis::Y || axis == ElementaryAxis::Z);
 			const float cos = Cos<AngleUnit::Degrees>(degrees);
 			const float sin = Sin<AngleUnit::Degrees>(degrees);
@@ -95,7 +105,11 @@ namespace Math
 			case ElementaryAxis::Z:
 				return { x * cos - y * sin, x * sin + y * cos, z };
 			default:
-				return Vector<3, T>{};
+#if defined( _MSC_VER )
+				__assume(0);
+#elif defined( __GNUC__ )
+				__builtin_unreachable();
+#endif
 			}
 		}
 
@@ -224,6 +238,9 @@ namespace Math
 		}
 		[[nodiscard]] constexpr const T& operator[](size_t index) const
 		{
+#if defined( _MSC_VER )
+			__assume(index < dimCount);
+#endif
 			assert(index < dimCount);
 			switch (index)
 			{
@@ -234,7 +251,11 @@ namespace Math
 			case 2:
 				return z;
 			default:
-				return *(T*)nullptr;
+#if defined( _MSC_VER )
+				__assume(0);
+#elif defined( __GNUC__ )
+				__builtin_unreachable();
+#endif
 			}
 		}
 		template<typename U>

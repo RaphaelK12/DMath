@@ -35,21 +35,33 @@ namespace Math
 
 		[[nodiscard]] constexpr T& At(size_t i)
 		{
+#if defined( _MSC_VER )
+			__assume(i < width * height);
+#endif
 			assert(i < width * height);
 			return data[i];
 		}
 		[[nodiscard]] constexpr const T& At(size_t i) const
 		{
+#if defined( _MSC_VER )
+			__assume(i < width * height);
+#endif
 			assert(i < width * height);
 			return data[i];
 		}
 		[[nodiscard]] constexpr T& At(size_t x, size_t y)
 		{
+#if defined( _MSC_VER )
+			__assume(i < width && i < height);
+#endif
 			assert(x < width && y < height);
 			return data[x * height + y];
 		}
 		[[nodiscard]] constexpr const T& At(size_t x, size_t y) const
 		{
+#if defined( _MSC_VER )
+			__assume(i < width && i < height);
+#endif
 			assert(x < width && y < height);
 			return data[x * height + y];
 		}
@@ -67,6 +79,9 @@ namespace Math
 
 		constexpr void SwapRows(size_t row1, size_t row2)
 		{
+#if defined( _MSC_VER )
+			__assume(row1 < height && row2 < height);
+#endif
 			assert(row1 < height && row2 < height);
 			for (size_t x = 0; x < width; x++)
 				std::swap((*this)[x][row1], (*this)[x][row2]);
@@ -74,6 +89,9 @@ namespace Math
 
 		constexpr void SwapColumns(size_t column1, size_t column2)
 		{
+#if defined( _MSC_VER )
+			__assume(column1 < width && column2 < width);
+#endif
 			assert(column1 < width && column2 < width);
 			for (size_t y = 0; y < height; y++)
 				std::swap((*this)[column1][y], (*this)[column2][y]);
@@ -211,10 +229,16 @@ namespace Math
 		}
 		[[nodiscard]] constexpr T* operator[](size_t index)
 		{
+#if defined( _MSC_VER )
+			__assume(index < height);
+#endif
 			return data.data() + (index * height);
 		}
 		[[nodiscard]] constexpr const T* operator[](size_t index) const
 		{
+#if defined( _MSC_VER )
+			__assume(index < height);
+#endif
 			return data.data() + (index * height);
 		}
 	};

@@ -23,7 +23,6 @@ namespace Math
 		using ConstIteratorType = Iterators::VectorConstIterator<2, T>;
 		static constexpr size_t dimCount = 2;
 
-
 		T x;
 		T y;
 
@@ -44,6 +43,9 @@ namespace Math
 
 		[[nodiscard]] constexpr const T& At(size_t index) const
 		{
+#if defined( _MSC_VER )
+			__assume(index < dimCount);
+#endif
 			assert(index < dimCount);
 			switch (index)
 			{
@@ -52,7 +54,9 @@ namespace Math
 			case 1:
 				return y;
 			default:
-				return *(T*)nullptr;
+#if defined( _MSC_VER )
+				__assume(0);
+#endif
 			}
 		}
 
@@ -188,6 +192,9 @@ namespace Math
 		[[nodiscard]] constexpr T& operator[](size_t index) { return const_cast<T&>(std::as_const(*this)[index]); }
 		[[nodiscard]] constexpr const T& operator[](size_t index) const
 		{
+#if defined( _MSC_VER )
+			__assume(index < dimCount);
+#endif
 			assert(index < dimCount);
 			switch (index)
 			{
@@ -196,7 +203,11 @@ namespace Math
 			case 1:
 				return y;
 			default:
-				return *(T*)nullptr;
+#if defined( _MSC_VER )
+				__assume(0);
+#elif defined( __GNUC__ )
+				__builtin_unreachable();
+#endif
 			}
 		}
 		template<typename U>

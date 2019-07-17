@@ -21,11 +21,17 @@ namespace Math
 
 		[[nodiscard]] constexpr T& At(size_t index)
 		{
+#if defined( _MSC_VER )
+			__assume(index < dimCount);
+#endif
 			return const_cast<T&>(std::as_const(*this).At(index));
 		}
 
 		[[nodiscard]] constexpr const T& At(size_t index) const
 		{
+#if defined( _MSC_VER )
+			__assume(index < dimCount);
+#endif
 			assert(index < dimCount);
 			return data.at(index);
 		}
@@ -203,10 +209,16 @@ namespace Math
 		}
 		[[nodiscard]] constexpr T& operator[](size_t index)
 		{
+#if defined( _MSC_VER )
+			__assume(index < dimCount);
+#endif
 			return const_cast<T&>(std::as_const(*this)[index]);
 		}
 		[[nodiscard]] constexpr const T& operator[](size_t index) const
 		{
+#if defined( _MSC_VER )
+			__assume(index < dimCount);
+#endif
 			assert(index < dimCount);
 			return data[index];
 		}

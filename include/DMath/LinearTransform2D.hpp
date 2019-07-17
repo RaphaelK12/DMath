@@ -51,7 +51,7 @@ namespace Math
 
 constexpr Math::Matrix<3, 2> Math::LinearTransform2D::Multiply_Reduced(const Matrix<3, 2>& left, const Matrix<3, 2>& right)
 {
-	Math::Matrix<3, 2> newMatrix{};
+	Math::Matrix<3, 2> newMatrix;
 	for (size_t x = 0; x < 2; x++)
 	{
 		for (size_t y = 0; y < 2; y++)
@@ -78,14 +78,14 @@ constexpr Math::Matrix<3, 2> Math::LinearTransform2D::Multiply_Reduced(const Mat
 template<typename T>
 constexpr Math::Matrix<4, 4, T> Math::LinearTransform2D::AsMat4(const Matrix<3, 2, T>& input)
 {
-	Matrix<4, 4, T> newMatrix{};
-	newMatrix.At(2, 2) = 1;
-	newMatrix.At(3, 3) = 1;
+	Matrix<4, 4, T> newMatrix;
+	newMatrix[2][2] = 1;
+	newMatrix[3][3] = 1;
 
-	for (size_t x = 0; x < input.GetWidth(); x++)
+	for (size_t x = 0; x < 3; x++)
 	{
-		for (size_t y = 0; y < input.GetHeight(); y++)
-			newMatrix.At(x, y) = input.At(x, y);
+		for (size_t y = 0; y < 2; y++)
+			newMatrix[x][y] = input[x][y];
 	}
 
 	return newMatrix;

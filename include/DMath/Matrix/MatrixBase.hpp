@@ -26,6 +26,9 @@ namespace Math
 
 			[[nodiscard]] constexpr Math::Matrix<width - 1, height - 1, T> GetMinor(size_t columnIndexToSlice, size_t rowIndexToSlice) const
 			{
+#if defined( _MSC_VER )
+				__assume(columnIndexToSlice < width && rowIndexToSlice < height);
+#endif
 				assert(columnIndexToSlice < width && rowIndexToSlice < height);
 
 				Math::Matrix<width - 1, height - 1, T> newMatrix;
