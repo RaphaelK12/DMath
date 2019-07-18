@@ -127,7 +127,7 @@ namespace Math
 			{
 				for (size_t x = 0; x < width; x++)
 				{
-					if constexpr (std::is_same<char, T>() || std::is_same<unsigned char, T>())
+					if constexpr (std::is_same<char, T>::value || std::is_same<unsigned char, T>::value)
 						stream << +(*this)[x][y];
 					else
 						stream << (*this)[x][y];
@@ -195,12 +195,12 @@ namespace Math
 		template<size_t widthB>
 		[[nodiscard]] constexpr Matrix<widthB, height, T> operator*(const Matrix<widthB, width, T>& right) const
 		{
-			Matrix<widthB, height, T> newMatrix{};
+			Matrix<widthB, height, T> newMatrix;
 			for (size_t x = 0; x < widthB; x++)
 			{
 				for (size_t y = 0; y < height; y++)
 				{
-					T dot{};
+					T dot = T(0);
 					for (size_t i = 0; i < width; i++)
 						dot += (*this)[i][y] * right[x][i];
 					newMatrix[x][y] = dot;

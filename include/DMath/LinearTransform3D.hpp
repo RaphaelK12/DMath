@@ -15,10 +15,62 @@ namespace Math
 {
 	namespace LinearTransform3D
 	{
-		[[nodiscard]] constexpr Matrix<4, 3> Multiply_Reduced(const Matrix<4, 3>& left, const Matrix<4, 3>& right);
-		template<typename T = float>
-		[[nodiscard]] constexpr Vector<3, T> Multiply_Reduced(const Matrix<4, 3, T>& left, const Vector<3, T>& right);
-		[[nodiscard]] constexpr Matrix4x4 AsMat4(const Matrix<4, 3>& input);
+		template<typename T>
+		[[nodiscard]] constexpr Matrix<4, 3, T> Multiply_Reduced(const Matrix<4, 3, T>& left, const Matrix<4, 3, T>& right)
+		{
+			Matrix<4, 3, T> newMatrix;
+			for (size_t x = 0; x < 3; x++)
+			{
+				for (size_t y = 0; y < 3; y++)
+				{
+					T dot{};
+					for (size_t i = 0; i < 3; i++)
+						dot += left[i][y] * right[x][i];
+					newMatrix[x][y] = dot;
+				}
+			}
+
+			for (size_t y = 0; y < 3; y++)
+			{
+				T dot{};
+				for (size_t i = 0; i < 3; i++)
+					dot += left[i][y] * right[3][i];
+				dot += left[3][y];
+				newMatrix[3][y] = dot;
+			}
+
+			return newMatrix;
+		}
+		template<typename T>
+		[[nodiscard]] constexpr Vector<3, T> Multiply_Reduced(const Matrix<4, 3, T>& left, const Vector<3, T>& right)
+		{
+			Vector<3, T> newVector;
+
+			for (size_t y = 0; y < 3; y++)
+			{
+				T dot = T(0);
+				for (size_t i = 0; i < 3; i++)
+					dot += left[i][y] * right[i];
+				newVector[y] = dot + left[3][y];
+			}
+
+			return newVector;
+		}
+		template<typename T>
+		[[nodiscard]] constexpr Matrix<4, 4, T> AsMat4(const Matrix<4, 3, T>& input)
+		{
+			Matrix<4, 4, T> newMat;
+			for (size_t x = 0; x < 4; x++)
+			{
+				for (size_t y = 0; y < 3; y++)
+					newMat[x][y] = input[x][y];
+			}
+			newMat[0][3] = T(0);
+			newMat[1][3] = T(0);
+			newMat[2][3] = T(0);
+			newMat[3][3] = T(1);
+			return newMat;
+		}
 
 		[[nodiscard]] constexpr Matrix4x4 Translate(float x, float y, float z);
 		[[nodiscard]] constexpr Matrix4x4 Translate(const Vector3D& input);
@@ -76,63 +128,6 @@ namespace Math
 
 	namespace LinTran3D = LinearTransform3D;
 }
-
-constexpr Math::Matrix<4, 3> Math::LinearTransform3D::Multiply_Reduced(const Matrix<4, 3>& left, const Matrix<4, 3>& right)
-{
-	Math::Matrix<4, 3> newMatrix;
-	for (size_t x = 0; x < 3; x++)
-	{
-		for (size_t y = 0; y < 3; y++)
-		{
-			Math::Matrix<4, 3>::ValueType dot{};
-			for (size_t i = 0; i < 3; i++)
-				dot += left[i][y] * right[x][i];
-			newMatrix[x][y] = dot;
-		}
-	}
-
-	for (size_t y = 0; y < 3; y++)
-	{
-		Math::Matrix<4, 3>::ValueType dot{};
-		for (size_t i = 0; i < 3; i++)
-			dot += left[i][y] * right[3][i];
-		dot += left[3][y];
-		newMatrix[3][y] = dot;
-	}
-
-	return newMatrix;
-}
-
-template<typename T>
-[[nodiscard]] constexpr Math::Vector<3, T> Math::LinearTransform3D::Multiply_Reduced(const Matrix<4, 3, T>& left, const Vector<3, T>& right)
-{
-	Math::Vector<3, T> newVector;
-
-	for (size_t y = 0; y < 3; y++)
-	{
-		T dot = T(0);
-		for (size_t i = 0; i < 3; i++)
-			dot += left[i][y] * right[i];
-		newVector[y] = dot + left[3][y];
-	}
-
-	return newVector;
-}
-
-constexpr Math::Matrix4x4 Math::LinearTransform3D::AsMat4(const Math::Matrix<4, 3>& input)
-{
-	Matrix4x4 newMat;
-
-	for (size_t x = 0; x < 4; x++)
-	{
-		for (size_t y = 0; y < 3; y++)
-			newMat[x][y] = input[x][y];
-	}
-
-	newMat.Back() = 1;
-	return newMat;
-}
-
 
 constexpr Math::Matrix4x4 Math::LinearTransform3D::Translate(float x, float y, float z)
 {
